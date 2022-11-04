@@ -6,6 +6,7 @@ function clamp(v, min, max) {
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
+camera.rotation.order = "YXZ";
 
 const renderer = new THREE.WebGLRenderer();
 renderer.physicallyCorrectLights = true;
@@ -59,20 +60,14 @@ function animate() {
 	requestAnimationFrame(animate);
     
     var dt = clock.getDelta();
-    //cube.rotation.x += 0.05;
-    //cube.rotation.y += 0.05;
 
     camera.rotation.x += getDir("ArrowUp", "ArrowDown")*2*dt;
     camera.rotation.y -= getDir("ArrowRight", "ArrowLeft")*2*dt;
-    camera.rotation.order = "YXZ";
     var pos = camera.position;
-    var dirX = getDir("KeyD", "KeyA")*2*dt;
-    var dirY = getDir("KeyE", "KeyQ")*2*dt;
-    var dirZ = -getDir("KeyW", "KeyS")*2*dt;
-    //var dirZ = -clamp(getDir("KeyW", "KeyS")+getDir("ArrowUp", "ArrowDown"), -1, 1)*2*dt;
-    //pos.set(pos.x+dirX, pos.y+dirY, pos.z+dirZ);
-    //camera.lookAt(0,0,0);
-    pos.add(new THREE.Vector3(dirX,dirY,dirZ).applyQuaternion(camera.quaternion));
-	renderer.render(scene, camera);
+    var dir = new THREE.Vector3(getDir("KeyD", "KeyA"), getDir("KeyE", "KeyQ"), -getDir("KeyW", "KeyS"));
+    dir.normalize().applyQuaternion(camera.quaternion);
+    pos.add(dir.multiplyScalar(dt*4));
+    
+    renderer.render(scene, camera);
 }
 animate();
