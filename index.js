@@ -1,54 +1,64 @@
 "use strict";
+// functions that should be in Math
 function clamp(v, min, max) {
     return Math.max(min, Math.min(v, max));
 }
 function lerp(a, b, t) {
     return a+(b-a)*t;
 }
-/*
-    start at 0
-    map = [
-        {pos:(0,0,0), forward:1},
-        {pos:(0,0,-1), backward:0}
-    ]
-*/
-const Vec2 = THREE.Vector2;
-//const map = [
-//    { // 0
-//        pos: new Vec2(0,0),
-//        rotation:0,
-//        up:1
-//    },
-//    { // 1
-//        pos: new Vec2(2,-4),
-//        rotation:Math.PI*0.125,
-//        down:0,
-//        up:2
-//    },
-//    { // 2
-//        pos:new Vec2(0, -8),
-//        rotation:0,
-//        down:1
-//    }
-//];
+function mod(a, n) {
+    return a - (n * Math.floor(a/n));
+}
+function roundToNearest(a, inc) {
+    return Math.round(a/inc)*inc;
+}
+
+// helper functions
+function moveVector3To(v0, v1, delta) {
+    var toX = v1.x-v0.x;
+    var toY = v1.y-v0.y;
+    var toZ = v1.z-v0.z;
+    var sqrDist = toX*toX + toY*toY + toZ*toZ;
+    if (sqrDist === 0 || sqrDist <= delta*delta) {
+        v0.copy(v1);
+        return;
+    }
+    var dist = Math.sqrt(sqrDist);
+    v0.x += toX/dist*delta;
+    v0.y += toY/dist*delta;
+    v0.z += toZ/dist*delta;
+}
+// test case:
+// a is 175deg
+// b is -175deg
+// a -> 175deg -> 180deg -> -180deg -> -175deg
+// possibly just use Quaternion.slerp on camera
+function lerpRotation(a, b, t) {
+    return lerp(a,b,t);
+    //const PI2 = Math.PI*2;
+    //if (Math.abs(b-a) > Math.PI) {
+    //
+    //} else {
+    //    return lerp(a,b,t);
+    //}
+}
+function Vec2(x,y) { return new THREE.Vector2(x,y); }
 const map = [
     { // 0
-        pos: new Vec2(0,0),
-        rotation:0,
-        down:1,
-        up:2
+        pos:Vec2(0,0),
+        northeast:1
     },
     { // 1
-        pos: new Vec2(0,0),
-        rotation:Math.PI,
-        down:0
+        pos:Vec2(2,-4),
+        northwest:2,
+        southwest:0
     },
     { // 2
-        pos: new Vec2(2,-4),
-        rotation:0,
-        down:1
+        pos:Vec2(0,-8),
+        southeast:1
     }
 ];
+
 var currentArea = map[0];
 
 const defaultPitch = -Math.PI/16;
@@ -95,7 +105,7 @@ const cubeMat = new THREE.MeshLambertMaterial({
     color: 0xFFFFFF
 });
 const cube = new THREE.Mesh(cubeGeo, cubeMat);
-cube.position.set(0,.25,-4);
+cube.position.set(0,.5,-4);
 scene.add(cube);
 
 const planeGeo = new THREE.PlaneGeometry(2, .5);
@@ -131,107 +141,80 @@ const moveIndicator = new THREE.Mesh(moveIndicatorGeo, moveIndicatorMat);
 moveIndicator.layers.set(1);
 scene.add(moveIndicator);
 
-function moveVector3To(v0, v1, delta) {
-    var toX = v1.x-v0.x;
-    var toY = v1.y-v0.y;
-    var toZ = v1.z-v0.z;
-    var sqrDist = toX*toX + toY*toY + toZ*toZ;
-    if (sqrDist === 0 || sqrDist <= delta*delta) {
-        v0.copy(v1);
-        return;
-    }
-    var dist = Math.sqrt(sqrDist);
-    v0.x += toX/dist*delta;
-    v0.y += toY/dist*delta;
-    v0.z += toZ/dist*delta;
-}
+var camTargetRotation = 0;
+var isMoving = false;
 
 const raycaster = new THREE.Raycaster();
-//const pointerPos = new THREE.Vector2();
 const targetPos = new THREE.Vector3();
 
-function raycastScreenPoint(x,y) {
-	pointerPos.x = x / window.outerWidth * 2 - 1;
-	pointerPos.y = -y / window.outerHeight * 2 + 1;
-    raycaster.setFromCamera(pointerPos, camera);
-    const hits = raycaster.intersectObjects(scene.children);
-    return hits;
-}
-//function updateIndicator(e) {
-//    var hits = raycastScreenPoint(e.clientX, e.clientY);
-//    if (hits.length > 0) {
-//        pointerIndicator.position.copy(hits[0].point);
-//    }
-//}
-//window.addEventListener("pointermove", updateIndicator);
-//window.addEventListener("pointerdown", updateIndicator);
-//function handleClick(e) {
-//    var hits = raycastScreenPoint(e.clientX, e.clientY);
-//    if (hits.length > 0) {
-//        isMoving = true;
-//        targetPos.copy(hits[0].point);
-//        moveIndicator.position.copy(targetPos);
-//    }
-//}
-//window.addEventListener("pointerup", handleClick);
 const dpad = document.getElementById("dpad");
-const controls = {
-    up:dpad.getElementsByClassName("up")[0],
-    down:dpad.getElementsByClassName("down")[0],
-    left:dpad.getElementsByClassName("left")[0],
-    right:dpad.getElementsByClassName("right")[0]
+const rotateUI = document.getElementById("rotate");
+const moveControls = {
+    north:dpad.getElementsByClassName("north")[0],
+    south:dpad.getElementsByClassName("south")[0],
+    west:dpad.getElementsByClassName("west")[0],
+    east:dpad.getElementsByClassName("east")[0],
+
+    northwest:dpad.getElementsByClassName("northwest")[0],
+    southwest:dpad.getElementsByClassName("southwest")[0],
+    northeast:dpad.getElementsByClassName("northeast")[0],
+    southeast:dpad.getElementsByClassName("southeast")[0]
 };
+const rotateControls = {
+    left:rotateUI.getElementsByClassName("left")[0],
+    right:rotateUI.getElementsByClassName("right")[0]
+}
 function updateUI() {
-    for (const key in controls) {
-        const element = controls[key];
-        element.style.display = currentArea[key]!==undefined ? "block" : "none";
+    for (const key in moveControls) {
+        const element = moveControls[key];
+        element.style.opacity = currentArea[key]!==undefined ? "1" : "0";
     }
 }
 updateUI();
-function addListeners(id) {
-    controls[id].addEventListener("pointerdown", e => {
+for (const key in moveControls) {
+    moveControls[key].addEventListener("pointerdown", e => {
         if (isMoving) {
             return;
         }
-        var index = currentArea[id];
+        let index = currentArea[key];
         if (index === undefined) {
             return;
         }
         currentArea = map[index];
         isMoving = true;
         targetPos.set(currentArea.pos.x, 0, currentArea.pos.y);
+        
+        let rotation = camera.rotation.y;
+        camera.lookAt(targetPos.x, 0, targetPos.z);
+        camTargetRotation = camera.rotation.y;
+        camera.rotation.set(defaultPitch, rotation, 0);
 
-        for (const key in controls) {
-            const element = controls[key];
-            element.style.display = "none";
-        }
+        updateUI();
     });
 }
-addListeners("up");
-addListeners("down");
-addListeners("left");
-addListeners("right");
 
-var keysHeld = {};
-function getDir(plus, neg) {
-    var dir = 0;
-    if (keysHeld[plus]) {
-        dir++;
-    }
-    if (keysHeld[neg]) {
-        dir--;
-    }
-    return dir;
+rotateControls.left.addEventListener("pointerdown", e => {
+    camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2) + Math.PI/2;
+});
+rotateControls.right.addEventListener("pointerdown", e => {
+    camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2) - Math.PI/2;
+});
+
+function iosZoomFix(element) {
+    element.addEventListener("touchstart", e => {
+        e.preventDefault();
+    });
 }
-document.addEventListener("keydown", e => {
-    if (e.repeat) { return; }
-    keysHeld[e.code] = true;
-})
-document.addEventListener("keyup", e => {
-    delete keysHeld[e.code];
-})
+iosZoomFix(dpad);
+iosZoomFix(rotateUI);
+for (const key in moveControls) {
+    iosZoomFix(moveControls[key]);
+}
+for (const key in rotateControls) {
+    iosZoomFix(rotateControls[key]);
+}
 
-var lastWindowSize = {width:window.outerHeight, height:window.outerHeight};
+const lastWindowSize = {width:window.outerHeight, height:window.outerHeight};
 function updateAspectRatio() {
     camera.aspect = window.outerWidth / window.outerHeight;
     camera.updateProjectionMatrix();
@@ -241,31 +224,16 @@ function updateAspectRatio() {
 }
 const clock = new THREE.Clock();
 const camClock = new THREE.Clock();
-const zero3 = new THREE.Vector3(0,0,0);
 
-var uiDir = new THREE.Vector3(0,0,0);
-var uiRotateDir = 0;
-var moveDir = new THREE.Vector3(0,0,0);
-var camOffset = new THREE.Vector3(0,0,0);
-var camTargetOffset = new THREE.Vector3(0,0,0);
-var camTempRotation = new THREE.Quaternion();
-var camTargetRotation = new THREE.Quaternion();
-
-function applyYEuler(vector, euler) {
-    var x = euler.x, z = euler.z;
-    euler.x = euler.z = 0;
-    vector.applyEuler(euler);
-    euler.x = x, euler.z = z;
-    return vector;
-}
-var isMoving = false;
+const camOffset = new THREE.Vector3(0,0,0);
+const camTargetOffset = new THREE.Vector3(0,0,0);
 function animate() {
 	requestAnimationFrame(animate);
     
     if (lastWindowSize.width != window.outerWidth || lastWindowSize.height != window.outerHeight) {
         updateAspectRatio();
     }
-    const dt = clock.getDelta();
+    const dt = Math.min(clock.getDelta(), 0.1);
 
     camTargetOffset.set(0,0,0);
     if (isMoving) {
@@ -279,33 +247,16 @@ function animate() {
         targetPos.y = camera.position.y;
         moveVector3To(camera.position, targetPos, dt*4);
 
-        var rotation = camera.rotation.y;
-        //camTempRotation.copy(camera.quaternion);
-        camera.lookAt(targetPos.x, 0, targetPos.z);
-        camera.rotation.x = defaultPitch;
-        camera.rotation.y = lerp(rotation, camera.rotation.y, dt*6);
-        //camTargetRotation.copy(camera.quaternion);
-        //camera.quaternion.copy(camTempRotation);
-        //camera.quaternion.slerp(camTargetRotation, dt*6);
-
         const sqrDist = camera.position.distanceToSquared(targetPos);
         isMoving = sqrDist > 0.01;
 
         if (!isMoving) {
-            updateUI();
+            camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2);
         }
-    } else {
-
-        camera.rotation.y = lerp(camera.rotation.y, currentArea.rotation, dt*6);
     }
-    //raycastScreenPoint(pointerPos.x, pointerPos.y);
-    //raycaster.setFromCamera(pointerPos, camera);
-    //const hits = raycaster.intersectObjects(scene.children);
-    //if (hits.length > 0) {
-    //    pointerIndicator.position.copy(hits[0].point);
-    //} else {
-    //    pointerIndicator.position.set(0,0,0);
-    //}
+    camera.rotation.y = lerpRotation(camera.rotation.y, camTargetRotation, dt*6);
+    dpad.style.transform = "rotate(" + (camera.rotation.y) + "rad)";
+
     renderer.render(scene, camera);
 }
 animate();

@@ -8,47 +8,70 @@ body, html { cursor:default; background:#000000; border: 0px none; padding: 0px;
     z-index:1;
     position:absolute;
 }
-#dpad {
-    width:100%;
-    height:100%;
-    /*width:35%;
-    height:35%;*/
-    /*bottom:0;
+#dpad, #rotate {
+    width:35vh;
+    height:35vh;
+    bottom:20px;
     left:0;
     right:0;
-    margin:auto;*/
-    /*animation:rotate 2s 0s ease-in-out alternate infinite;*/
-}
-#dpad > * {
     margin:auto;
-    width:50px;
-    height:20px;
-    background-size:50px 20px;
+}
+#dpad {
+    z-index:2; /* make sure dpad is above rotation controls */
+}
+#dpad > *, #rotate > * {
+    margin:auto;
     background-image: url("images/arrow.png");
     image-rendering: pixelated;
-}
-#dpad .up {
-    bottom:30%;
+    background-size:100% 100%;
+
+    top:0;
+    bottom:0;
     left:0;
     right:0;
+    
 }
-#dpad .down {
-    bottom:10%;
-    left:0;
-    right:0;
-    transform:rotate(180deg);
+#dpad > * {
+    width:40px;
+    height:18px;
+    --dpadTranslation:translateY(-12vh);
+    transition:opacity 0.25s;
 }
-#dpad .left {
-    left:25%;
-    bottom:20%;
-    transform:rotate(-90deg);
+#rotate > * {
+    width:50px;
+    height:20px;
+    --sidesTranslation:translateY(-22vh);
 }
-#dpad .right {
-    right:25%;
-    bottom:20%;
-    transform:rotate(90deg);
+#dpad .north {
+    transform:var(--dpadTranslation);
 }
-@keyframes rotate {
-    0% { transform:rotate(0deg); }
-    100% { transform:rotate(360deg); }
+#dpad .south {
+    transform:rotate(180deg) var(--dpadTranslation);
+}
+#dpad .west {
+    transform:rotate(-90deg) var(--dpadTranslation);
+}
+#dpad .east {
+    transform:rotate(90deg) var(--dpadTranslation);
+}
+
+#dpad .northwest {
+    transform:rotate(-45deg) var(--dpadTranslation);
+}
+#dpad .southwest {
+    transform:rotate(-135deg) var(--dpadTranslation);
+}
+#dpad .northeast {
+    transform:rotate(45deg) var(--dpadTranslation);
+}
+#dpad .southeast {
+    transform:rotate(135deg) var(--dpadTranslation);
+}
+
+#rotate .left {
+    transform:rotate(-90deg) var(--sidesTranslation);
+}
+#rotate .right {
+    transform:rotate(90deg) var(--sidesTranslation);
+
 }
