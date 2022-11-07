@@ -28,25 +28,13 @@ function moveVector3To(v0, v1, delta) {
     v0.y += toY/dist*delta;
     v0.z += toZ/dist*delta;
 }
-// test case:
-// a is 175deg
-// b is -175deg
-// a -> 175deg -> 180deg -> -180deg -> -175deg
-// possibly just use Quaternion.slerp on camera
-function lerpRotation(a, b, t) {
-    return lerp(a,b,t);
-    //const PI2 = Math.PI*2;
-    //if (Math.abs(b-a) > Math.PI) {
-    //
-    //} else {
-    //    return lerp(a,b,t);
-    //}
-}
+
 function Vec2(x,y) { return new THREE.Vector2(x,y); }
 const map = [
     { // 0
         pos:Vec2(0,0),
-        northeast:1
+        northeast:1,
+        northwest:3
     },
     { // 1
         pos:Vec2(2,-4),
@@ -55,7 +43,13 @@ const map = [
     },
     { // 2
         pos:Vec2(0,-8),
-        southeast:1
+        southeast:1,
+        southwest:3
+    },
+    { // 3
+        pos:Vec2(-2,-4),
+        northeast:2,
+        southeast:0
     }
 ];
 
@@ -99,6 +93,7 @@ textContext.textAlign = "center";
 textContext.fillText("Tap the arrows to move", textCanvas.width / 2, textCanvas.height / 2);
 
 const guideTex = new THREE.CanvasTexture(textCanvas);
+// textContext.clearRect(0, 0, textCanvas.width, textCanvas.height);
 
 const cubeGeo = new THREE.BoxGeometry(2, 0.5, 1);
 const cubeMat = new THREE.MeshLambertMaterial({
@@ -124,22 +119,6 @@ const pointLight = new THREE.PointLight(0xffffff, 10, 100);
 pointLight.position.set(0, 2, -1);
 scene.add(pointLight);
 
-const pointerIndicatorGeo = new THREE.SphereGeometry(0.08, 12, 12);
-const moveIndicatorGeo = new THREE.SphereGeometry(0.081, 12, 12);
-const pointerMat = new THREE.MeshLambertMaterial({
-    color: 0xFFFFFF
-});
-const moveIndicatorMat = new THREE.MeshLambertMaterial({
-    color: 0x80FF80
-});
-const pointerIndicator = new THREE.Mesh(pointerIndicatorGeo, pointerMat);
-pointerIndicator.layers.set(1);
-scene.add(pointerIndicator);
-
-
-const moveIndicator = new THREE.Mesh(moveIndicatorGeo, moveIndicatorMat);
-moveIndicator.layers.set(1);
-scene.add(moveIndicator);
 
 var camTargetRotation = 0;
 var isMoving = false;
@@ -227,6 +206,9 @@ const camClock = new THREE.Clock();
 
 const camOffset = new THREE.Vector3(0,0,0);
 const camTargetOffset = new THREE.Vector3(0,0,0);
+const tempEuler = new THREE.Euler(0, 0, 0, "YXZ");
+const tempQuaternion = new THREE.Quaternion();
+
 function animate() {
 	requestAnimationFrame(animate);
     
@@ -254,7 +236,9 @@ function animate() {
             camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2);
         }
     }
-    camera.rotation.y = lerpRotation(camera.rotation.y, camTargetRotation, dt*6);
+    tempEuler.set(defaultPitch, camTargetRotation, 0);
+    tempQuaternion.setFromEuler(tempEuler);
+    camera.quaternion.slerp(tempQuaternion, dt*6);
     dpad.style.transform = "rotate(" + (camera.rotation.y) + "rad)";
 
     renderer.render(scene, camera);

@@ -22,7 +22,6 @@ body, html { cursor:default; background:#000000; border: 0px none; padding: 0px;
 #dpad > *, #rotate > * {
     margin:auto;
     background-image: url("images/arrow.png");
-    image-rendering: pixelated;
     background-size:100% 100%;
 
     top:0;
