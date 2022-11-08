@@ -31,30 +31,31 @@ function moveVector3To(v0, v1, delta) {
 
 function Vec2(x,y) { return new THREE.Vector2(x,y); }
 const map = [
-    { // 0
+    { // 0: spawn
         pos:Vec2(0,0),
         northeast:1,
         northwest:3,
     },
-    { // 1
+    { // 1: right of spawn
         pos:Vec2(2,-4),
-        northwest:2,
+        northwest:4,
         southwest:0,
+        north:2,
     },
-    { // 2
-        pos:Vec2(0,-8),
-        southeast:1,
-        southwest:3,
+    { // 2: project 0
+        pos:Vec2(2,-12),
+        south:1,
     },
-    { // 3
+    { // 3: left of spawn
         pos:Vec2(-2,-4),
-        northeast:2,
+        // northeast:2,
         southeast:0,
         north:4,
     },
-    { // 4
+    { // 4: about section
         pos:Vec2(-2, -8),
-        south:3
+        south:3,
+        southeast:1,
     },
 ];
 
@@ -132,6 +133,12 @@ scene.add(pointLight1);
 const loader = new THREE.GLTFLoader();
 loader.load("models/billboard.glb", (gltf) => {
     gltf.scene.scale.set(0.4,0.4,0.4);
+    
+    const project0 = gltf.scene.clone();
+    project0.position.set(1, 0, -12);
+    project0.rotation.y = Math.PI/2;
+    scene.add(project0);
+
     gltf.scene.position.set(-2, 0, -9);
     scene.add(gltf.scene);
 
