@@ -33,7 +33,8 @@ body, html { cursor:default; background:#000000; border: 0px none; padding: 0px;
 #dpad > * {
     width:40px;
     height:18px;
-    --dpadTranslation:translateY(-12vh);
+    --translation0:translateY(-14vh);
+    --translation1:translateY(-12vh);
     transition:opacity 0.25s;
 }
 #rotate > * {
@@ -42,29 +43,29 @@ body, html { cursor:default; background:#000000; border: 0px none; padding: 0px;
     --sidesTranslation:translateY(-22vh);
 }
 #dpad .north {
-    transform:var(--dpadTranslation);
+    transform:var(--translation1);
 }
 #dpad .south {
-    transform:rotate(180deg) var(--dpadTranslation);
+    transform:rotate(180deg) var(--translation1);
 }
 #dpad .west {
-    transform:rotate(-90deg) var(--dpadTranslation);
+    transform:rotate(-90deg) var(--translation1);
 }
 #dpad .east {
-    transform:rotate(90deg) var(--dpadTranslation);
+    transform:rotate(90deg) var(--translation1);
 }
 
 #dpad .northwest {
-    transform:rotate(-45deg) var(--dpadTranslation);
+    transform:rotate(-45deg) var(--translation0);
 }
 #dpad .southwest {
-    transform:rotate(-135deg) var(--dpadTranslation);
+    transform:rotate(-135deg) var(--translation0);
 }
 #dpad .northeast {
-    transform:rotate(45deg) var(--dpadTranslation);
+    transform:rotate(45deg) var(--translation0);
 }
 #dpad .southeast {
-    transform:rotate(135deg) var(--dpadTranslation);
+    transform:rotate(135deg) var(--translation0);
 }
 
 #rotate .left {

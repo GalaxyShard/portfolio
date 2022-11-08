@@ -34,38 +34,44 @@ const map = [
     { // 0
         pos:Vec2(0,0),
         northeast:1,
-        northwest:3
+        northwest:3,
     },
     { // 1
         pos:Vec2(2,-4),
         northwest:2,
-        southwest:0
+        southwest:0,
     },
     { // 2
         pos:Vec2(0,-8),
         southeast:1,
-        southwest:3
+        southwest:3,
     },
     { // 3
         pos:Vec2(-2,-4),
         northeast:2,
-        southeast:0
-    }
+        southeast:0,
+        north:4,
+    },
+    { // 4
+        pos:Vec2(-2, -8),
+        south:3
+    },
 ];
 
 var currentArea = map[0];
 
-const defaultPitch = -Math.PI/16;
+const defaultPitch = 0;
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.outerWidth / window.outerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 1, 0);
 camera.rotation.order = "YXZ";
 camera.rotation.x = defaultPitch;
 camera.layers.enable(1);
 
 const renderer = new THREE.WebGLRenderer();
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.physicallyCorrectLights = true;
-renderer.setSize(window.outerWidth, window.outerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const floorGeometry = new THREE.BoxGeometry(100, .1, 100);
@@ -93,14 +99,14 @@ textContext.textAlign = "center";
 textContext.fillText("Tap the arrows to move", textCanvas.width / 2, textCanvas.height / 2);
 
 const guideTex = new THREE.CanvasTexture(textCanvas);
-// textContext.clearRect(0, 0, textCanvas.width, textCanvas.height);
 
 const cubeGeo = new THREE.BoxGeometry(2, 0.5, 1);
 const cubeMat = new THREE.MeshLambertMaterial({
     color: 0xFFFFFF
 });
 const cube = new THREE.Mesh(cubeGeo, cubeMat);
-cube.position.set(0,.5,-4);
+cube.position.set(0,2,-4);
+cube.rotation.x = Math.PI/16;
 scene.add(cube);
 
 const planeGeo = new THREE.PlaneGeometry(2, .5);
@@ -119,6 +125,25 @@ const pointLight = new THREE.PointLight(0xffffff, 10, 100);
 pointLight.position.set(0, 2, -1);
 scene.add(pointLight);
 
+const pointLight1 = new THREE.PointLight(0xffffff, 10, 100);
+pointLight1.position.set(-2, 2, -8);
+scene.add(pointLight1);
+
+const loader = new THREE.GLTFLoader();
+loader.load("models/billboard.glb", (gltf) => {
+    gltf.scene.scale.set(0.4,0.4,0.4);
+    gltf.scene.position.set(-2, 0, -9);
+    scene.add(gltf.scene);
+
+    const aboutTex = new THREE.TextureLoader().load("images/about.png");
+    const overlayGeo = new THREE.PlaneGeometry(1.5, 0.75);
+    const overlayMat = new THREE.MeshLambertMaterial({
+        map:aboutTex
+    });
+    const overlay = new THREE.Mesh(overlayGeo, overlayMat);
+    overlay.position.set(-2, 1, -9+0.01);
+    scene.add(overlay);
+});
 
 var camTargetRotation = 0;
 var isMoving = false;
@@ -193,14 +218,17 @@ for (const key in rotateControls) {
     iosZoomFix(rotateControls[key]);
 }
 
-const lastWindowSize = {width:window.outerHeight, height:window.outerHeight};
+const lastWindowSize = {width:window.innerHeight, height:window.innerHeight};
 function updateAspectRatio() {
-    camera.aspect = window.outerWidth / window.outerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.fov = 60 / Math.min(camera.aspect/1.125, 1);
     camera.updateProjectionMatrix();
-    renderer.setSize(window.outerWidth, window.outerHeight);
-    lastWindowSize.width = window.outerWidth;
-    lastWindowSize.height = window.outerHeight;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    lastWindowSize.width = window.innerWidth;
+    lastWindowSize.height = window.innerHeight;
 }
+updateAspectRatio();
+
 const clock = new THREE.Clock();
 const camClock = new THREE.Clock();
 
@@ -212,7 +240,7 @@ const tempQuaternion = new THREE.Quaternion();
 function animate() {
 	requestAnimationFrame(animate);
     
-    if (lastWindowSize.width != window.outerWidth || lastWindowSize.height != window.outerHeight) {
+    if (lastWindowSize.width != window.innerWidth || lastWindowSize.height != window.innerHeight) {
         updateAspectRatio();
     }
     const dt = Math.min(clock.getDelta(), 0.1);
