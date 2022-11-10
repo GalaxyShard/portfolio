@@ -30,49 +30,48 @@ function moveVector3To(v0, v1, delta) {
 }
 
 function Vec2(x,y) { return new THREE.Vector2(x,y); }
-const map = [
-    { // 0: spawn
+const map = {
+    spawn: {
         pos:Vec2(0,0),
-        northeast:1,
-        northwest:3,
+        northeast:"rightOfSpawn",
+        northwest:"leftOfSpawn",
     },
-    { // 1: right of spawn
-        pos:Vec2(2,-4),
-        northwest:4,
-        southwest:0,
-        north:2,
-    },
-    { // 2: project 0
-        pos:Vec2(2,-12),
-        south:1,
-    },
-    { // 3: left of spawn
+    leftOfSpawn: {
         pos:Vec2(-2,-4),
-        // northeast:2,
-        southeast:0,
-        north:4,
+        southeast:"spawn",
+        north:"about",
     },
-    { // 4: about section
+    rightOfSpawn: {
+        pos:Vec2(2,-4),
+        northwest:"about",
+        southwest:"spawn",
+        north:"project0",
+    
+    },
+    project0: {
+        pos:Vec2(2, -12),
+        south:"rightOfSpawn",
+    },
+    about: {
         pos:Vec2(-2, -8),
-        south:3,
-        southeast:1,
+        south:"leftOfSpawn",
+        southeast:"rightOfSpawn",
     },
-];
-
-var currentArea = map[0];
+};
+var currentArea = map.spawn;
 
 const defaultPitch = 0;
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// fov and aspect ratio are set later
+const camera = new THREE.PerspectiveCamera(1,1, 0.1, 1000);
 camera.position.set(0, 1, 0);
 camera.rotation.order = "YXZ";
 camera.rotation.x = defaultPitch;
-camera.layers.enable(1);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.physicallyCorrectLights = true;
-renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const floorGeometry = new THREE.BoxGeometry(100, .1, 100);
@@ -126,9 +125,15 @@ const pointLight = new THREE.PointLight(0xffffff, 10, 100);
 pointLight.position.set(0, 2, -1);
 scene.add(pointLight);
 
-const pointLight1 = new THREE.PointLight(0xffffff, 10, 100);
+const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
 pointLight1.position.set(-2, 2, -8);
 scene.add(pointLight1);
+
+const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
+pointLight2.position.set(2, 2, -12);
+scene.add(pointLight2);
+
+var links = [];
 
 const loader = new THREE.GLTFLoader();
 loader.load("models/billboard.glb", (gltf) => {
@@ -143,19 +148,58 @@ loader.load("models/billboard.glb", (gltf) => {
     scene.add(gltf.scene);
 
     const aboutTex = new THREE.TextureLoader().load("images/about.png");
+    const project0Tex = new THREE.TextureLoader().load("images/retro-remake.png");
+    
     const overlayGeo = new THREE.PlaneGeometry(1.5, 0.75);
-    const overlayMat = new THREE.MeshLambertMaterial({
+    const aboutOverlayMat = new THREE.MeshLambertMaterial({
         map:aboutTex
     });
-    const overlay = new THREE.Mesh(overlayGeo, overlayMat);
-    overlay.position.set(-2, 1, -9+0.01);
-    scene.add(overlay);
+    const project0OverlayMat = new THREE.MeshLambertMaterial({
+        map:project0Tex
+    });
+    const aboutOverlay = new THREE.Mesh(overlayGeo, aboutOverlayMat);
+    aboutOverlay.position.set(-2, 1, -9+0.01);
+    scene.add(aboutOverlay);
+    
+    const project0Overlay = new THREE.Mesh(overlayGeo, project0OverlayMat);
+    project0Overlay.position.set(1+0.01, 1, -12);
+    project0Overlay.rotation.y = project0.rotation.y;
+    scene.add(project0Overlay);
+    links[links.length] = {
+        object:project0Overlay,
+        href:"https://galaxyshard-wdpp.github.io/retro-c-binary"
+    };
 });
 
 var camTargetRotation = 0;
 var isMoving = false;
 
 const raycaster = new THREE.Raycaster();
+const pointerPos = new THREE.Vector2();
+function raycastScreenPoint(x,y) {
+	pointerPos.x = x / window.innerWidth * 2 - 1;
+	pointerPos.y = -y / window.innerHeight * 2 + 1;
+    raycaster.setFromCamera(pointerPos, camera);
+    const hits = raycaster.intersectObjects(scene.children);
+    return hits;
+}
+var lastClickTime = 0;
+window.addEventListener("pointerdown", e => {
+    const hits = raycastScreenPoint(e.clientX, e.clientY);
+    if (hits.length > 0) {
+        const link = links.find((value) => value.object==hits[0].object);
+        var time = performance.now();
+        console.log(time-lastClickTime);
+        if (link) {
+            // 250ms
+            if (time-lastClickTime < 250) {
+                window.location.href = link.href;
+            } else {
+                lastClickTime = time;
+            }
+        }
+    }
+});
 const targetPos = new THREE.Vector3();
 
 const dpad = document.getElementById("dpad");
@@ -178,7 +222,7 @@ const rotateControls = {
 function updateUI() {
     for (const key in moveControls) {
         const element = moveControls[key];
-        element.style.opacity = currentArea[key]!==undefined ? "1" : "0";
+        element.style.opacity = currentArea[key]!==undefined ? "0.5" : "0";
     }
 }
 updateUI();
@@ -225,10 +269,10 @@ for (const key in rotateControls) {
     iosZoomFix(rotateControls[key]);
 }
 
-const lastWindowSize = {width:window.innerHeight, height:window.innerHeight};
+const lastWindowSize = {};
 function updateAspectRatio() {
     camera.aspect = window.innerWidth / window.innerHeight;
-    camera.fov = 60 / Math.min(camera.aspect/1.125, 1);
+    camera.fov = 70 / Math.min(camera.aspect, 1);
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     lastWindowSize.width = window.innerWidth;
@@ -265,7 +309,8 @@ function animate() {
         moveVector3To(camera.position, targetPos, dt*4);
 
         const sqrDist = camera.position.distanceToSquared(targetPos);
-        isMoving = sqrDist > 0.01;
+        const threshold = 0.001;
+        isMoving = sqrDist > threshold*threshold;
 
         if (!isMoving) {
             camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2);

@@ -9,15 +9,10 @@ body, html { cursor:default; background:#000000; border: 0px none; padding: 0px;
     position:absolute;
 }
 #dpad, #rotate {
-    width:35vh;
-    height:35vh;
-    bottom:20px;
+    bottom:calc(20px + 17.5vh);
     left:0;
     right:0;
     margin:auto;
-}
-#dpad {
-    z-index:2; /* make sure dpad is above rotation controls */
 }
 #dpad > *, #rotate > * {
     margin:auto;
@@ -28,7 +23,7 @@ body, html { cursor:default; background:#000000; border: 0px none; padding: 0px;
     bottom:0;
     left:0;
     right:0;
-    
+    opacity:0.5;
 }
 #dpad > * {
     width:40px;
