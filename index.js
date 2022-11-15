@@ -48,15 +48,21 @@ const map = {
         north:"project0",
     
     },
-    project0: {
-        pos:Vec2(2, -12),
-        south:"rightOfSpawn",
-    },
     about: {
         pos:Vec2(-2, -8),
         south:"leftOfSpawn",
         southeast:"rightOfSpawn",
     },
+    project0: {
+        pos:Vec2(2, -12),
+        south:"rightOfSpawn",
+        north:"project1",
+    },
+    project1: {
+        pos:Vec2(2, -18),
+        south:"project0",
+
+    }
 };
 var currentArea = map.spawn;
 
@@ -133,6 +139,10 @@ const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
 pointLight2.position.set(2, 2, -12);
 scene.add(pointLight2);
 
+const pointLight3 = new THREE.PointLight(0xffffff, 5, 100);
+pointLight3.position.set(2, 2, -18);
+scene.add(pointLight3);
+
 var links = [];
 
 const loader = new THREE.GLTFLoader();
@@ -143,28 +153,31 @@ loader.load("models/billboard.glb", (gltf) => {
     project0.position.set(1, 0, -12);
     project0.rotation.y = Math.PI/2;
     scene.add(project0);
-
-    gltf.scene.position.set(-2, 0, -9);
-    scene.add(gltf.scene);
-
-    const aboutTex = new THREE.TextureLoader().load("images/about.png");
-    const project0Tex = new THREE.TextureLoader().load("images/retro-remake.png");
     
-    const overlayGeo = new THREE.PlaneGeometry(1.5, 0.75);
-    const aboutOverlayMat = new THREE.MeshLambertMaterial({
-        map:aboutTex
-    });
-    const project0OverlayMat = new THREE.MeshLambertMaterial({
-        map:project0Tex
-    });
-    const aboutOverlay = new THREE.Mesh(overlayGeo, aboutOverlayMat);
-    aboutOverlay.position.set(-2, 1, -9+0.01);
-    scene.add(aboutOverlay);
+    const project1 = gltf.scene.clone();
+    project1.position.set(3, 0, -18);
+    project1.rotation.y = -Math.PI/2;
+    scene.add(project1);
     
-    const project0Overlay = new THREE.Mesh(overlayGeo, project0OverlayMat);
-    project0Overlay.position.set(1+0.01, 1, -12);
-    project0Overlay.rotation.y = project0.rotation.y;
-    scene.add(project0Overlay);
+    const about = gltf.scene;
+    about.position.set(-2, 0, -9);
+    scene.add(about);
+
+    const overlayGeo = new THREE.PlaneGeometry(4, 2);
+    function addOverlay(billboard, texturePath) {
+        const tex = new THREE.TextureLoader().load(texturePath);
+        const mat = new THREE.MeshLambertMaterial({
+            map:tex
+        });
+        const overlay = new THREE.Mesh(overlayGeo, mat);
+        overlay.position.set(0,2.5,0.01);
+        billboard.add(overlay);
+        return overlay;
+    }
+    const aboutOverlay = addOverlay(about, "images/about.png");
+    const project0Overlay = addOverlay(project0, "images/retro-remake.png");
+    const project1Overlay = addOverlay(project1, "images/retro-remake.png");
+
     links[links.length] = {
         object:project0Overlay,
         href:"https://galaxyshard-wdpp.github.io/retro-c-binary"
