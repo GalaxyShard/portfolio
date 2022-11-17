@@ -1,4 +1,7 @@
-"use strict";
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 // functions that should be in Math
 function clamp(v, min, max) {
     return Math.max(min, Math.min(v, max));
@@ -143,9 +146,28 @@ const pointLight3 = new THREE.PointLight(0xffffff, 5, 100);
 pointLight3.position.set(2, 2, -18);
 scene.add(pointLight3);
 
+const font = new FontLoader().load("assets/helvetiker.typeface.json");
+// const font = new FontLoader().load("https://cdn.rawgit.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json");
+const aboutTextGeo = new TextGeometry("About", {
+    font: font,
+    size: 70,
+    height: 20,
+    curveSegments: 4,
+    bevelThickness: 1,
+    bevelSize: 1.5,
+    bevelEnabled: true
+});
+aboutTextGeo.computeBoundingBox()
+const aboutTextMat = new THREE.MeshLambertMaterial({
+    color:0xFFFFFF
+});
+const aboutText = new THREE.Mesh(aboutTextGeo, aboutTextMat);
+aboutText.position.set(-2, 2, -9);
+// scene.add(aboutText);
+
 var links = [];
 
-const loader = new THREE.GLTFLoader();
+const loader = new GLTFLoader();
 loader.load("models/billboard.glb", (gltf) => {
     gltf.scene.scale.set(0.4,0.4,0.4);
     
@@ -202,7 +224,6 @@ window.addEventListener("pointerdown", e => {
     if (hits.length > 0) {
         const link = links.find((value) => value.object==hits[0].object);
         var time = performance.now();
-        console.log(time-lastClickTime);
         if (link) {
             // 250ms
             if (time-lastClickTime < 250) {
