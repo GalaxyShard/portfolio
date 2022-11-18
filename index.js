@@ -130,40 +130,44 @@ const sun = new THREE.DirectionalLight(0xffffff, 3);
 sun.position.set(1, 1, -2).normalize();
 scene.add(sun);
 
-const pointLight = new THREE.PointLight(0xffffff, 10, 100);
-pointLight.position.set(0, 2, -1);
-scene.add(pointLight);
+function newLight(intensity, dist, posX,posY,posZ) {
+    const pointLight = new THREE.PointLight(0xffffff, intensity, dist);
+    pointLight.position.set(posX,posY,posZ);
+    scene.add(pointLight);
+    return pointLight;
+}
+newLight(10,100, 0,2,-1);
+newLight(5,100, -2,2,-8);
+newLight(5,100, 2,2,-12);
+newLight(5,100, 2,2,-18);
+newLight(5,100, 2, 1.75, -8);
 
-const pointLight1 = new THREE.PointLight(0xffffff, 5, 100);
-pointLight1.position.set(-2, 2, -8);
-scene.add(pointLight1);
-
-const pointLight2 = new THREE.PointLight(0xffffff, 5, 100);
-pointLight2.position.set(2, 2, -12);
-scene.add(pointLight2);
-
-const pointLight3 = new THREE.PointLight(0xffffff, 5, 100);
-pointLight3.position.set(2, 2, -18);
-scene.add(pointLight3);
-
-const font = new FontLoader().load("assets/helvetiker.typeface.json");
+new FontLoader().load("./assets/helvetiker.typeface.json", (font) => {
+    const textMat = new THREE.MeshLambertMaterial({
+        color:0xFFFFFF
+    });
+    function createText(text, posX, posY, posZ) {
+        const geo = new TextGeometry(text, {
+            font: font,
+            size: .5,
+            height: .1,
+            curveSegments: 1,
+        
+            bevelThickness: 0.1,
+            bevelSize: 0.01,
+            bevelEnabled: true
+        });
+        geo.computeBoundingBox()
+        const offset = 0.5*(geo.boundingBox.min.x - geo.boundingBox.max.x);
+        const textMesh = new THREE.Mesh(geo, textMat);
+        textMesh.position.set(offset+posX, posY, posZ);
+        scene.add(textMesh);
+        
+    }
+    createText("About", -2, 1.75, -9.25);
+    createText("Projects", 2, 1.75, -9.25);
+});
 // const font = new FontLoader().load("https://cdn.rawgit.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json");
-const aboutTextGeo = new TextGeometry("About", {
-    font: font,
-    size: 70,
-    height: 20,
-    curveSegments: 4,
-    bevelThickness: 1,
-    bevelSize: 1.5,
-    bevelEnabled: true
-});
-aboutTextGeo.computeBoundingBox()
-const aboutTextMat = new THREE.MeshLambertMaterial({
-    color:0xFFFFFF
-});
-const aboutText = new THREE.Mesh(aboutTextGeo, aboutTextMat);
-aboutText.position.set(-2, 2, -9);
-// scene.add(aboutText);
 
 var links = [];
 
@@ -180,6 +184,11 @@ loader.load("models/billboard.glb", (gltf) => {
     project1.position.set(3, 0, -18);
     project1.rotation.y = -Math.PI/2;
     scene.add(project1);
+    
+    const backButton = gltf.scene.clone();
+    backButton.position.set(-1.25, 0, 0);
+    backButton.rotation.y = Math.PI/2;
+    scene.add(backButton);
     
     const about = gltf.scene;
     about.position.set(-2, 0, -9);
@@ -199,10 +208,15 @@ loader.load("models/billboard.glb", (gltf) => {
     const aboutOverlay = addOverlay(about, "images/about.png");
     const project0Overlay = addOverlay(project0, "images/retro-remake.png");
     const project1Overlay = addOverlay(project1, "images/retro-remake.png");
+    const backBtnOverlay = addOverlay(backButton, "images/retro-remake.png");
 
     links[links.length] = {
         object:project0Overlay,
         href:"https://galaxyshard-wdpp.github.io/retro-c-binary"
+    };
+    links[links.length] = {
+        object:backBtnOverlay,
+        href:"./"
     };
 });
 
