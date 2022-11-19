@@ -142,7 +142,7 @@ newLight(5,100, 2,2,-12);
 newLight(5,100, 2,2,-18);
 newLight(5,100, 2, 1.75, -8);
 
-new FontLoader().load("./assets/helvetiker.typeface.json", (font) => {
+new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     const textMat = new THREE.MeshLambertMaterial({
         color:0xFFFFFF
     });
@@ -167,12 +167,10 @@ new FontLoader().load("./assets/helvetiker.typeface.json", (font) => {
     createText("About", -2, 1.75, -9.25);
     createText("Projects", 2, 1.75, -9.25);
 });
-// const font = new FontLoader().load("https://cdn.rawgit.com/mrdoob/three.js/master/examples/fonts/helvetiker_regular.typeface.json");
-
 var links = [];
 
 const loader = new GLTFLoader();
-loader.load("models/billboard.glb", (gltf) => {
+loader.loadAsync("models/billboard.glb").then((gltf) => {
     gltf.scene.scale.set(0.4,0.4,0.4);
     
     const project0 = gltf.scene.clone();
@@ -207,15 +205,22 @@ loader.load("models/billboard.glb", (gltf) => {
     }
     const aboutOverlay = addOverlay(about, "images/about.png");
     const project0Overlay = addOverlay(project0, "images/retro-remake.png");
-    const project1Overlay = addOverlay(project1, "images/retro-remake.png");
-    const backBtnOverlay = addOverlay(backButton, "images/retro-remake.png");
+    const project1Overlay = addOverlay(project1, "images/cups-pups.png");
+    const backBtnOverlay = addOverlay(backButton, "images/backbtn.png");
 
     links[links.length] = {
         object:project0Overlay,
+        openInNewTab:true,
         href:"https://galaxyshard-wdpp.github.io/retro-c-binary"
     };
     links[links.length] = {
+        object:project1Overlay,
+        openInNewTab:true,
+        href:"https://galaxyshard-wdpp.github.io/cups-pups"
+    };
+    links[links.length] = {
         object:backBtnOverlay,
+        openInNewTab:false,
         href:"./"
     };
 });
@@ -241,7 +246,11 @@ window.addEventListener("pointerdown", e => {
         if (link) {
             // 250ms
             if (time-lastClickTime < 250) {
-                window.location.href = link.href;
+                if (link.openInNewTab) {
+                    window.open(link.href);
+                } else {
+                    window.location.href = link.href;
+                }
             } else {
                 lastClickTime = time;
             }
