@@ -190,8 +190,8 @@ new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     //createText("Inspirations", 9.25, 1.75, 0, -Math.PI/2);
     createText("Contact", 0, 1.75, 9.25, Math.PI);
 });
-// 'links' is a list of objects that, when double clicked, open a new page
-var links = [];
+// 'popups' is a list of objects that, when double clicked, display a popup with information
+var popups = [];
 
 // Creates all of the billboards
 const loader = new GLTFLoader();
@@ -222,26 +222,34 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
         billboard.add(overlay);
         return overlay;
     }
+    // TODO: remove these images, possibly use CSS3DRenderer to display the iframes in 3D space directly
     const aboutOverlay = addOverlay(about, "images/about.png");
     const project0Overlay = addOverlay(project0, "images/retro-remake.png");
     const project1Overlay = addOverlay(project1, "images/cups-pups.png");
     const backBtnOverlay = addOverlay(backButton, "images/backbtn.png");
     const contactOverlay = addOverlay(contact, "images/contact.png");
 
-    links[links.length] = {
+    popups[popups.length] = {
+        object:aboutOverlay,
+        iframe:"subpages/about.html"
+    };
+    popups[popups.length] = {
         object:project0Overlay,
-        openInNewTab:true,
+        iframe:"subpages/retro-remake.html",
         href:"https://galaxyshard-wdpp.github.io/retro-c-binary"
     };
-    links[links.length] = {
+    popups[popups.length] = {
         object:project1Overlay,
-        openInNewTab:true,
+        iframe:"subpages/cups-pups.html",
         href:"https://galaxyshard-wdpp.github.io/cups-pups"
     };
-    links[links.length] = {
+    popups[popups.length] = {
         object:backBtnOverlay,
-        openInNewTab:false,
         href:"./"
+    };
+    popups[popups.length] = {
+        object:contactOverlay,
+        iframe:"subpages/contact.html"
     };
 });
 // This is the target yaw of the camera, used to smoothly look around
@@ -259,24 +267,45 @@ function raycastScreenPoint(x,y) {
     return hits;
 }
 
+const popup = document.getElementById("popup");
+const closePopup = popup.getElementsByClassName("close")[0];
+const newTab = popup.getElementsByClassName("open")[0];
+const popupFrame = popup.getElementsByTagName("iframe")[0];
+popup.getElementsByClassName("close")[0].addEventListener("click", _ => {
+    popup.classList.remove("opened");
+});
+
 var lastClickTime = performance.now();
 window.addEventListener("pointerdown", e => {
     const hits = raycastScreenPoint(e.clientX, e.clientY);
 
     if (hits.length > 0) {
-        // find if the object clicked on was a billboard with a link
-        const link = links.find((value) => value.object==hits[0].object);
+        // ignore far billboards
+        if (hits[0].distance > 3) {
+            return;
+        }
+        // find if the object clicked on was a billboard
+        const frame = popups.find((value) => value.object==hits[0].object);
         
-        if (link) {
+        if (frame) {
             // check for a double click
             var time = performance.now();
             if (time-lastClickTime < 250 /* ms */) {
-                if (link.openInNewTab) {
-                    if (window.open(link.href, "_blank") === null) {
-                        window.location.href = link.href;
+                // if there is a subpage open it, otherwise navigate directly to site
+                if (frame.iframe) {
+                    popupFrame.src = frame.iframe;
+                    
+                    // disable "Open in new tab" if there is no dedicated website
+                    newTab.href = frame.href || "javascript:void()";
+                    if (frame.href) {
+                        newTab.classList.remove("invisible");
+                    } else {
+                        newTab.classList.add("invisible");
                     }
+                    popup.classList.add("opened");
+
                 } else {
-                    window.location.href = link.href;
+                    window.location.href = frame.href;
                 }
             } else {
                 lastClickTime = time;

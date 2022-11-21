@@ -15,7 +15,7 @@ body, html {
     user-select: none;
 }
 #ui * {
-    z-index:2;
+    z-index:1;
     position:absolute;
 }
 #dpad, #rotate {
@@ -84,9 +84,59 @@ body, html {
     transform:rotate(90deg) var(--sidesTranslation);
 
 }
-/*#debug {
-    background-color: #00000080;
-    color:white;
-    width:100%;
+#popup {
+    width:90%;
+    height:90%;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin:auto;
+    background-color: #ffffffff;
+    border-radius:5px;
+
+    transform:translateY(100vh);
+    transition:transform 0.5s;
+}
+#popup.opened {
+    transform:translateY(0);
+}
+#popup > .close {
+    width:30px;
     height:30px;
-}*/
+    top:5px;
+    left:5px;
+
+    display:block;
+    background-color: #ff0000;
+    color:#ffffff;
+    cursor:pointer;
+
+    border:0;
+    border-radius:5px;
+}
+#popup > .open {
+    width:150px;
+    height:30px;
+    line-height:30px;
+    top:5px;
+    left:40px;
+
+    display:block;
+    background-color: #0080ff;
+    color:#ffffff;
+
+    text-align: center;
+    text-decoration: none;
+    border:0;
+    border-radius:5px;
+
+}
+#popup > .open.invisible {
+    display:none;
+}
+#popup > iframe {
+    width:100%;
+    height:calc(100% - 35px);
+    bottom:0;
+}
