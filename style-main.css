@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
-h1,h4 {
+h1,h4,.section-font {
     font-family:"Audiowide", fantasy;
 }
 body {

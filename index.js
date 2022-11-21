@@ -33,32 +33,43 @@ function moveVector3To(v0, v1, delta) {
 }
 
 function Vec2(x,y) { return new THREE.Vector2(x,y); }
+// This is the map, each element is a location which has a position and
+// all of the other locations that the player can go to from there
 const map = {
     spawn: {
         pos:Vec2(0,0),
-        northeast:"rightOfSpawn",
-        northwest:"leftOfSpawn",
+        northeast:"toProjects",
+        northwest:"toAbout",
+        south:"toContact",
     },
-    leftOfSpawn: {
+    toAbout: {
         pos:Vec2(-2,-4),
         southeast:"spawn",
         north:"about",
     },
-    rightOfSpawn: {
+    toProjects: {
         pos:Vec2(2,-4),
         northwest:"about",
         southwest:"spawn",
         north:"project0",
-    
+    },
+    toContact: {
+        pos:Vec2(0, 4),
+        north:"spawn",
+        south:"contact",
+    },
+    contact: {
+        pos:Vec2(0, 8),
+        north:"toContact",
     },
     about: {
         pos:Vec2(-2, -8),
-        south:"leftOfSpawn",
-        southeast:"rightOfSpawn",
+        south:"toAbout",
+        southeast:"toProjects",
     },
     project0: {
         pos:Vec2(2, -12),
-        south:"rightOfSpawn",
+        south:"toProjects",
         north:"project1",
     },
     project1: {
@@ -69,10 +80,13 @@ const map = {
 };
 var currentArea = map.spawn;
 
+// Sets the pitch for the camera, can be used to look slightly up or down
 const defaultPitch = 0;
+
 const scene = new THREE.Scene();
 
 // fov and aspect ratio are set later
+// YXZ rotation order to prevent gimbal lock when there is pitch
 const camera = new THREE.PerspectiveCamera(1,1, 0.1, 1000);
 camera.position.set(0, 1, 0);
 camera.rotation.order = "YXZ";
@@ -83,6 +97,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.physicallyCorrectLights = true;
 document.body.appendChild(renderer.domElement);
 
+// Creates the floor, 100x100 meters, uses floor.png for a repeating texture
 const floorGeometry = new THREE.BoxGeometry(100, .1, 100);
 const floorTex = new THREE.TextureLoader().load("images/floor.png");
 floorTex.repeat.set(50, 50);
@@ -95,7 +110,7 @@ const floorMat = new THREE.MeshStandardMaterial({
 const floor = new THREE.Mesh(floorGeometry, floorMat);
 scene.add(floor);
 
-
+// Creates text which can be turned into a texture and put on an object
 const textCanvas = document.createElement("canvas");
 textCanvas.width = 800;
 textCanvas.height = 200;
@@ -109,23 +124,25 @@ textContext.fillText("Tap the arrows to move", textCanvas.width / 2, textCanvas.
 
 const guideTex = new THREE.CanvasTexture(textCanvas);
 
-const cubeGeo = new THREE.BoxGeometry(2, 0.5, 1);
-const cubeMat = new THREE.MeshLambertMaterial({
+// Creates a 3D object to display the guide text
+const guideCubeGeo = new THREE.BoxGeometry(2, 0.5, 1);
+const guideCubeMat = new THREE.MeshLambertMaterial({
     color: 0xFFFFFF
 });
-const cube = new THREE.Mesh(cubeGeo, cubeMat);
-cube.position.set(0,2,-4);
-cube.rotation.x = Math.PI/16;
-scene.add(cube);
+const guideCube = new THREE.Mesh(guideCubeGeo, guideCubeMat);
+guideCube.position.set(0,2,-4);
+guideCube.rotation.x = Math.PI/16;
+scene.add(guideCube);
 
-const planeGeo = new THREE.PlaneGeometry(2, .5);
-const planeMat = new THREE.MeshLambertMaterial({
+const guidePlaneGeo = new THREE.PlaneGeometry(2, .5);
+const guidePlaneMat = new THREE.MeshLambertMaterial({
     map:guideTex
 });
-const plane = new THREE.Mesh(planeGeo, planeMat);
-cube.add(plane);
-plane.position.z = 0.501;
+const guidePlane = new THREE.Mesh(guidePlaneGeo, guidePlaneMat);
+guideCube.add(guidePlane);
+guidePlane.position.z = 0.501;
 
+// Sets up the lighting in the scene
 const sun = new THREE.DirectionalLight(0xffffff, 3);
 sun.position.set(1, 1, -2).normalize();
 scene.add(sun);
@@ -136,17 +153,20 @@ function newLight(intensity, dist, posX,posY,posZ) {
     scene.add(pointLight);
     return pointLight;
 }
-newLight(10,100, 0,2,-1);
-newLight(5,100, -2,2,-8);
-newLight(5,100, 2,2,-12);
-newLight(5,100, 2,2,-18);
-newLight(5,100, 2, 1.75, -8);
+newLight(10,100, 0,2,-1); // spawn
+newLight(5,100, -2,2,-8); // about
+newLight(5,100, 2,2,-12); // project0
+newLight(5,100, 2,2,-18); // project1
+newLight(5,100, 2, 1.75, -8); // project section
+//newLight(10,100, -8, 1.75, 0); // inspirations section
+newLight(5,100, 0, 2, 8); // contact
 
+// Inserts 3D text above each section
 new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     const textMat = new THREE.MeshLambertMaterial({
         color:0xFFFFFF
     });
-    function createText(text, posX, posY, posZ) {
+    function createText(text, posX, posY, posZ, yaw) {
         const geo = new TextGeometry(text, {
             font: font,
             size: .5,
@@ -157,46 +177,45 @@ new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
             bevelSize: 0.01,
             bevelEnabled: true
         });
-        geo.computeBoundingBox()
-        const offset = 0.5*(geo.boundingBox.min.x - geo.boundingBox.max.x);
+        geo.computeBoundingBox();
+        geo.center();
         const textMesh = new THREE.Mesh(geo, textMat);
-        textMesh.position.set(offset+posX, posY, posZ);
+        textMesh.position.set(posX, posY, posZ);
+        textMesh.rotation.y = yaw;
         scene.add(textMesh);
-        
+        return textMesh;
     }
-    createText("About", -2, 1.75, -9.25);
-    createText("Projects", 2, 1.75, -9.25);
+    createText("About", -2, 1.75, -9.25, 0);
+    createText("Projects", 2, 1.75, -9.25, 0);
+    //createText("Inspirations", 9.25, 1.75, 0, -Math.PI/2);
+    createText("Contact", 0, 1.75, 9.25, Math.PI);
 });
+// 'links' is a list of objects that, when double clicked, open a new page
 var links = [];
 
+// Creates all of the billboards
 const loader = new GLTFLoader();
-loader.loadAsync("models/billboard.glb").then((gltf) => {
+loader.loadAsync("models/billboard.glb").then(gltf => {
     gltf.scene.scale.set(0.4,0.4,0.4);
-    
-    const project0 = gltf.scene.clone();
-    project0.position.set(1, 0, -12);
-    project0.rotation.y = Math.PI/2;
-    scene.add(project0);
-    
-    const project1 = gltf.scene.clone();
-    project1.position.set(3, 0, -18);
-    project1.rotation.y = -Math.PI/2;
-    scene.add(project1);
-    
-    const backButton = gltf.scene.clone();
-    backButton.position.set(-1.25, 0, 0);
-    backButton.rotation.y = Math.PI/2;
-    scene.add(backButton);
-    
-    const about = gltf.scene;
-    about.position.set(-2, 0, -9);
-    scene.add(about);
+    function createBoard(posX, posY, posZ, yaw) {
+        var board = gltf.scene.clone();
+        board.position.set(posX,posY,posZ);
+        board.rotation.y = yaw;
+        scene.add(board);
+        return board;
+    }
+    const project0 = createBoard(1, 0, -12, Math.PI/2);
+    const project1 = createBoard(3, 0, -18, -Math.PI/2);
+    const backButton = createBoard(-1.25, 0, 0, Math.PI/2);
+    const about = createBoard(-2, 0, -9, 0);
+    const contact = createBoard(0, 0, 9, Math.PI);
 
     const overlayGeo = new THREE.PlaneGeometry(4, 2);
     function addOverlay(billboard, texturePath) {
-        const tex = new THREE.TextureLoader().load(texturePath);
-        const mat = new THREE.MeshLambertMaterial({
-            map:tex
+        const mat = new THREE.MeshLambertMaterial();
+        new THREE.TextureLoader().loadAsync(texturePath).then(tex => {
+            mat.map = tex;
+            mat.needsUpdate = true;
         });
         const overlay = new THREE.Mesh(overlayGeo, mat);
         overlay.position.set(0,2.5,0.01);
@@ -207,6 +226,7 @@ loader.loadAsync("models/billboard.glb").then((gltf) => {
     const project0Overlay = addOverlay(project0, "images/retro-remake.png");
     const project1Overlay = addOverlay(project1, "images/cups-pups.png");
     const backBtnOverlay = addOverlay(backButton, "images/backbtn.png");
+    const contactOverlay = addOverlay(contact, "images/contact.png");
 
     links[links.length] = {
         object:project0Overlay,
@@ -224,10 +244,11 @@ loader.loadAsync("models/billboard.glb").then((gltf) => {
         href:"./"
     };
 });
-
+// This is the target yaw of the camera, used to smoothly look around
 var camTargetRotation = 0;
 var isMoving = false;
 
+// Finds the objects in front of the pointer
 const raycaster = new THREE.Raycaster();
 const pointerPos = new THREE.Vector2();
 function raycastScreenPoint(x,y) {
@@ -237,17 +258,23 @@ function raycastScreenPoint(x,y) {
     const hits = raycaster.intersectObjects(scene.children);
     return hits;
 }
-var lastClickTime = 0;
+
+var lastClickTime = performance.now();
 window.addEventListener("pointerdown", e => {
     const hits = raycastScreenPoint(e.clientX, e.clientY);
+
     if (hits.length > 0) {
+        // find if the object clicked on was a billboard with a link
         const link = links.find((value) => value.object==hits[0].object);
-        var time = performance.now();
+        
         if (link) {
-            // 250ms
-            if (time-lastClickTime < 250) {
+            // check for a double click
+            var time = performance.now();
+            if (time-lastClickTime < 250 /* ms */) {
                 if (link.openInNewTab) {
-                    window.open(link.href);
+                    if (window.open(link.href, "_blank") === null) {
+                        window.location.href = link.href;
+                    }
                 } else {
                     window.location.href = link.href;
                 }
@@ -257,6 +284,7 @@ window.addEventListener("pointerdown", e => {
         }
     }
 });
+// Used for smoothly moving the camera
 const targetPos = new THREE.Vector3();
 
 const dpad = document.getElementById("dpad");
@@ -276,15 +304,19 @@ const rotateControls = {
     left:rotateUI.getElementsByClassName("left")[0],
     right:rotateUI.getElementsByClassName("right")[0]
 }
-function updateUI() {
+function updateDPad() {
     for (const key in moveControls) {
         const element = moveControls[key];
-        element.style.opacity = currentArea[key]!==undefined ? "0.5" : "0";
+        if (currentArea[key] === undefined) {
+            element.classList.add("invisible");
+        } else {
+            element.classList.remove("invisible");
+        }
     }
 }
-updateUI();
+updateDPad();
 for (const key in moveControls) {
-    moveControls[key].addEventListener("pointerdown", e => {
+    moveControls[key].addEventListener("pointerdown", _ => {
         if (isMoving) {
             return;
         }
@@ -292,6 +324,7 @@ for (const key in moveControls) {
         if (index === undefined) {
             return;
         }
+        // finds the next area, then starts moving and looking towards it
         currentArea = map[index];
         isMoving = true;
         targetPos.set(currentArea.pos.x, 0, currentArea.pos.y);
@@ -301,22 +334,25 @@ for (const key in moveControls) {
         camTargetRotation = camera.rotation.y;
         camera.rotation.set(defaultPitch, rotation, 0);
 
-        updateUI();
+        updateDPad();
     });
 }
 
-rotateControls.left.addEventListener("pointerdown", e => {
+rotateControls.left.addEventListener("pointerdown", _ => {
     camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2) + Math.PI/2;
 });
-rotateControls.right.addEventListener("pointerdown", e => {
+rotateControls.right.addEventListener("pointerdown", _ => {
     camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2) - Math.PI/2;
 });
 
+// fixes iOS zooming in on double clicks
+// touch-action:none; is supposed to already do this
 function iosZoomFix(element) {
     element.addEventListener("touchstart", e => {
         e.preventDefault();
     });
 }
+iosZoomFix(renderer.domElement);
 iosZoomFix(dpad);
 iosZoomFix(rotateUI);
 for (const key in moveControls) {
@@ -326,6 +362,7 @@ for (const key in rotateControls) {
     iosZoomFix(rotateControls[key]);
 }
 
+// updates the aspect ratio of the camera to adjust for mobile or pc and screen size changes
 const lastWindowSize = {};
 function updateAspectRatio() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -338,13 +375,16 @@ function updateAspectRatio() {
 updateAspectRatio();
 
 const clock = new THREE.Clock();
-const camClock = new THREE.Clock();
 
+// for the head-bobbing effect
+const camClock = new THREE.Clock();
 const camOffset = new THREE.Vector3(0,0,0);
 const camTargetOffset = new THREE.Vector3(0,0,0);
+
 const tempEuler = new THREE.Euler(0, 0, 0, "YXZ");
 const tempQuaternion = new THREE.Quaternion();
 
+// renders the scene, usually runs 60 times a second
 function animate() {
 	requestAnimationFrame(animate);
     
@@ -353,6 +393,7 @@ function animate() {
     }
     const dt = Math.min(clock.getDelta(), 0.1);
 
+    // head-bobbing effect
     camTargetOffset.set(0,0,0);
     if (isMoving) {
         camTargetOffset.y = Math.sin(camClock.getElapsedTime()*10)*0.08;
@@ -362,6 +403,7 @@ function animate() {
     camera.position.add(camOffset);
     
     if (isMoving) {
+        // moves towards the destination at a constant speed, ignoring the y-axis
         targetPos.y = camera.position.y;
         moveVector3To(camera.position, targetPos, dt*4);
 
@@ -370,12 +412,16 @@ function animate() {
         isMoving = sqrDist > threshold*threshold;
 
         if (!isMoving) {
+            // rounds the rotation to the nearest 90 degree increment
             camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2);
         }
     }
+    // smoothly rotates the camera to the target rotation
     tempEuler.set(defaultPitch, camTargetRotation, 0);
     tempQuaternion.setFromEuler(tempEuler);
     camera.quaternion.slerp(tempQuaternion, dt*6);
+
+    // rotate the dpad so that north always faces towards the -Z axis
     dpad.style.transform = "rotate(" + (camera.rotation.y) + "rad)";
 
     renderer.render(scene, camera);
