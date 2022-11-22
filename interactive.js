@@ -260,8 +260,8 @@ var isMoving = false;
 const raycaster = new THREE.Raycaster();
 const pointerPos = new THREE.Vector2();
 function raycastScreenPoint(x,y) {
-	pointerPos.x = x / window.innerWidth * 2 - 1;
-	pointerPos.y = -y / window.innerHeight * 2 + 1;
+	pointerPos.x = x / document.body.clientWidth * 2 - 1;
+	pointerPos.y = -y / document.body.clientHeight * 2 + 1;
     raycaster.setFromCamera(pointerPos, camera);
     const hits = raycaster.intersectObjects(scene.children);
     return hits;
@@ -394,12 +394,14 @@ for (const key in rotateControls) {
 // updates the aspect ratio of the camera to adjust for mobile or pc and screen size changes
 const lastWindowSize = {};
 function updateAspectRatio() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = document.body.clientWidth / document.body.clientHeight;
     camera.fov = 70 / Math.min(camera.aspect, 1);
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    lastWindowSize.width = window.innerWidth;
-    lastWindowSize.height = window.innerHeight;
+
+    renderer.setSize(document.body.clientWidth, document.body.clientHeight);
+
+    lastWindowSize.width = document.body.clientWidth;
+    lastWindowSize.height = document.body.clientHeight;
 }
 updateAspectRatio();
 
@@ -417,7 +419,7 @@ const tempQuaternion = new THREE.Quaternion();
 function animate() {
 	requestAnimationFrame(animate);
     
-    if (lastWindowSize.width != window.innerWidth || lastWindowSize.height != window.innerHeight) {
+    if (lastWindowSize.width != document.body.clientWidth || lastWindowSize.height != document.body.clientHeight) {
         updateAspectRatio();
     }
     const dt = Math.min(clock.getDelta(), 0.1);
