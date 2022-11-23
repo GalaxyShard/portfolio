@@ -271,7 +271,7 @@ const popup = document.getElementById("popup");
 const closePopup = popup.getElementsByClassName("close")[0];
 const newTab = popup.getElementsByClassName("open")[0];
 const popupFrame = popup.getElementsByTagName("iframe")[0];
-popup.getElementsByClassName("close")[0].addEventListener("click", _ => {
+closePopup.addEventListener("click", _ => {
     popup.classList.remove("opened");
 });
 

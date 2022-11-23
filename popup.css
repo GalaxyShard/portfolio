@@ -1,0 +1,71 @@
+#popup * {
+    position:absolute;
+}
+#popup {
+    position:fixed;
+    width:90%;
+    height:90%;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin:auto;
+    background-color: #ffffffff;
+    border-radius:5px;
+    
+    font-size:initial;
+    font-family:initial;
+    font-weight:initial;
+
+    transform:translateY(100vh);
+    transition:transform 0.5s;
+}
+#popup.opened {
+    transform:translateY(0);
+}
+#popup > .close {
+    width:30px;
+    height:30px;
+    top:5px;
+    left:5px;
+
+    display:block;
+    background-color: #ff0000;
+    color:#ffffff;
+    cursor:pointer;
+
+    border:0;
+    border-radius:5px;
+}
+#popup > .open {
+    width:150px;
+    height:30px;
+    line-height:30px;
+    top:5px;
+    left:40px;
+
+    display:block;
+    background-color: #0080ff;
+    color:#ffffff;
+
+    text-align: center;
+    text-decoration: none;
+    border:0;
+    border-radius:5px;
+
+    animation:linkAnimation 1s alternate infinite;
+}
+@keyframes linkAnimation {
+    0% { background-color: #0080ff; }
+    100% { background-color: #00a0ff; }
+}
+#popup > .open.invisible {
+    display:none;
+}
+#popup > iframe {
+    box-sizing:content-box;
+    left:0;
+    width:100%;
+    height:calc(100% - 35px);
+    bottom:0;
+}
