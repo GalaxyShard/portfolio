@@ -15,3 +15,6 @@ body {
     background-color: inherit;
     border:0;
 }
+#sections button:hover {
+    cursor:pointer;
+}

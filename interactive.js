@@ -134,6 +134,11 @@ guideCube.position.set(0,2,-4);
 guideCube.rotation.x = Math.PI/16;
 scene.add(guideCube);
 
+const pillarGeo = new THREE.BoxGeometry(0.2, 2.5, 1);
+const pillar0 = new THREE.Mesh(pillarGeo, guideCubeMat);
+pillar0.position.set(0,-1,0);
+guideCube.add(pillar0);
+
 const guidePlaneGeo = new THREE.PlaneGeometry(2, .5);
 const guidePlaneMat = new THREE.MeshLambertMaterial({
     map:guideTex
@@ -268,8 +273,8 @@ function raycastScreenPoint(x,y) {
 }
 
 const popup = document.getElementById("popup");
-const closePopup = popup.getElementsByClassName("close")[0];
-const newTab = popup.getElementsByClassName("open")[0];
+const closePopup = popup.getElementsByTagName("button")[0];
+const newTab = popup.getElementsByTagName("a")[0];
 const popupFrame = popup.getElementsByTagName("iframe")[0];
 closePopup.addEventListener("click", _ => {
     popup.classList.remove("opened");
