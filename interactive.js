@@ -104,8 +104,8 @@ floorTex.repeat.set(50, 50);
 floorTex.wrapS = THREE.RepeatWrapping;
 floorTex.wrapT = THREE.RepeatWrapping;
 floorTex.magFilter = THREE.NearestFilter;
-const floorMat = new THREE.MeshStandardMaterial({
-    map:floorTex, color: 0xFFFFFF, roughness:0.8, metalness:0.4, bumpScale:0.005
+const floorMat = new THREE.MeshLambertMaterial({
+    map:floorTex
 });
 const floor = new THREE.Mesh(floorGeometry, floorMat);
 scene.add(floor);
@@ -163,7 +163,6 @@ newLight(5,100, -2,2,-8); // about
 newLight(5,100, 2,2,-12); // project0
 newLight(5,100, 2,2,-18); // project1
 newLight(5,100, 2, 1.75, -8); // project section
-//newLight(10,100, -8, 1.75, 0); // inspirations section
 newLight(5,100, 0, 2, 8); // contact
 
 // Inserts 3D text above each section
@@ -192,7 +191,6 @@ new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     }
     createText("About", -2, 1.75, -9.25, 0);
     createText("Projects", 2, 1.75, -9.25, 0);
-    //createText("Inspirations", 9.25, 1.75, 0, -Math.PI/2);
     createText("Contact", 0, 1.75, 9.25, Math.PI);
 });
 // 'popups' is a list of objects that, when double clicked, display a popup with information
@@ -215,10 +213,12 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     const about = createBoard(-2, 0, -9, 0);
     const contact = createBoard(0, 0, 9, Math.PI);
 
-    const overlayGeo = new THREE.PlaneGeometry(4, 2);
-    function addOverlay(billboard, texturePath) {
+    const overlayGeo = new THREE.PlaneGeometry(3.8, 1.8);
+    const genericTexLoader = new THREE.TextureLoader().loadAsync("images/generic.png");
+    const backbtnTexLoader = new THREE.TextureLoader().loadAsync("images/backbtn.png");
+    function addOverlay(billboard, loader) {
         const mat = new THREE.MeshLambertMaterial();
-        new THREE.TextureLoader().loadAsync(texturePath).then(tex => {
+        loader.then(tex => {
             mat.map = tex;
             mat.needsUpdate = true;
         });
@@ -227,12 +227,12 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
         billboard.add(overlay);
         return overlay;
     }
-    // TODO: remove these images, possibly use CSS3DRenderer to display the iframes in 3D space directly
-    const aboutOverlay = addOverlay(about, "images/about.png");
-    const project0Overlay = addOverlay(project0, "images/retro-remake.png");
-    const project1Overlay = addOverlay(project1, "images/cups-pups.png");
-    const backBtnOverlay = addOverlay(backButton, "images/backbtn.png");
-    const contactOverlay = addOverlay(contact, "images/contact.png");
+    // possibly lazily load new billboard images when the user double clicks on them, after displaying the iframe popup
+    const aboutOverlay = addOverlay(about, genericTexLoader);
+    const project0Overlay = addOverlay(project0, genericTexLoader);
+    const project1Overlay = addOverlay(project1, genericTexLoader);
+    const backBtnOverlay = addOverlay(backButton, backbtnTexLoader);
+    const contactOverlay = addOverlay(contact, genericTexLoader);
 
     popups[popups.length] = {
         object:aboutOverlay,
