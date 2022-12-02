@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 // functions that should be in Math
 function clamp(v, min, max) {
     return Math.max(min, Math.min(v, max));
@@ -75,7 +75,11 @@ const map = {
     project1: {
         pos:Vec2(2, -18),
         south:"project0",
-
+        north:"project2",
+    },
+    project2: {
+        pos:Vec2(2, -22),
+        south:"project1",
     }
 };
 var currentArea = map.spawn;
@@ -162,8 +166,22 @@ newLight(10,100, 0,2,-1); // spawn
 newLight(5,100, -2,2,-8); // about
 newLight(5,100, 2,2,-12); // project0
 newLight(5,100, 2,2,-18); // project1
+newLight(5,100, 2,2,-22); // project2
 newLight(5,100, 2, 1.75, -8); // project section
 newLight(5,100, 0, 2, 8); // contact
+
+// todo: add nua, add round tiles around positions in map
+const tileRadius = 0.1;
+const tileGeo = new THREE.CylinderGeometry(tileRadius, tileRadius, 0.2, 6);
+const tileMat = new THREE.MeshLambertMaterial({
+    color:0xFFFFFF
+});
+for (const area in map) {
+    const data = map[area];
+    const tile = new THREE.Mesh(tileGeo, tileMat);
+    tile.position.set(data.pos.x, 0, data.pos.y);
+    scene.add(tile);
+}
 
 // Inserts 3D text above each section
 new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
@@ -209,6 +227,7 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     }
     const project0 = createBoard(1, 0, -12, Math.PI/2);
     const project1 = createBoard(3, 0, -18, -Math.PI/2);
+    const project2 = createBoard(1, 0, -22, Math.PI/2);
     const backButton = createBoard(-1.25, 0, 0, Math.PI/2);
     const about = createBoard(-2, 0, -9, 0);
     const contact = createBoard(0, 0, 9, Math.PI);
@@ -231,6 +250,7 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     const aboutOverlay = addOverlay(about, genericTexLoader);
     const project0Overlay = addOverlay(project0, genericTexLoader);
     const project1Overlay = addOverlay(project1, genericTexLoader);
+    const project2Overlay = addOverlay(project2, genericTexLoader);
     const backBtnOverlay = addOverlay(backButton, backbtnTexLoader);
     const contactOverlay = addOverlay(contact, genericTexLoader);
 
@@ -247,6 +267,11 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
         object:project1Overlay,
         iframe:"subpages/cups-pups.html",
         href:"https://galaxyshard-wdpp.github.io/cups-pups"
+    };
+    popups[popups.length] = {
+        object:project2Overlay,
+        iframe:"subpages/nua.html",
+        href:"https://galaxyshard.github.io/nua/compiler.html"
     };
     popups[popups.length] = {
         object:backBtnOverlay,
