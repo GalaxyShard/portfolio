@@ -40,7 +40,7 @@ const map = {
         pos:Vec2(0,0),
         northeast:"toProjects",
         northwest:"toAbout",
-        south:"toContact",
+        south:"toResume",
     },
     toAbout: {
         pos:Vec2(-2,-4),
@@ -53,14 +53,14 @@ const map = {
         southwest:"spawn",
         north:"project0",
     },
-    toContact: {
+    toResume: {
         pos:Vec2(0, 4),
         north:"spawn",
-        south:"contact",
+        south:"resume",
     },
-    contact: {
+    resume: {
         pos:Vec2(0, 8),
-        north:"toContact",
+        north:"toResume",
     },
     about: {
         pos:Vec2(-2, -8),
@@ -168,7 +168,7 @@ newLight(5,100, 2,2,-12); // project0
 newLight(5,100, 2,2,-18); // project1
 newLight(5,100, 2,2,-22); // project2
 newLight(5,100, 2, 1.75, -8); // project section
-newLight(5,100, 0, 2, 8); // contact
+newLight(5,100, 0, 2, 8); // resume
 
 // todo: add nua, add round tiles around positions in map
 const tileRadius = 0.1;
@@ -209,7 +209,7 @@ new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     }
     createText("About", -2, 1.75, -9.25, 0);
     createText("Projects", 2, 1.75, -9.25, 0);
-    createText("Contact", 0, 1.75, 9.25, Math.PI);
+    createText("Resume", 0, 1.75, 9.25, Math.PI);
 });
 // 'popups' is a list of objects that, when double clicked, display a popup with information
 var popups = [];
@@ -230,7 +230,7 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     const project2 = createBoard(1, 0, -22, Math.PI/2);
     const backButton = createBoard(-1.25, 0, 0, Math.PI/2);
     const about = createBoard(-2, 0, -9, 0);
-    const contact = createBoard(0, 0, 9, Math.PI);
+    const resume = createBoard(0, 0, 9, Math.PI);
 
     const overlayGeo = new THREE.PlaneGeometry(3.8, 1.8);
     const genericTexLoader = new THREE.TextureLoader().loadAsync("images/generic.png");
@@ -252,7 +252,7 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     const project1Overlay = addOverlay(project1, genericTexLoader);
     const project2Overlay = addOverlay(project2, genericTexLoader);
     const backBtnOverlay = addOverlay(backButton, backbtnTexLoader);
-    const contactOverlay = addOverlay(contact, genericTexLoader);
+    const resumeOverlay = addOverlay(resume, genericTexLoader);
 
     popups[popups.length] = {
         object:aboutOverlay,
@@ -278,8 +278,8 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
         href:"./"
     };
     popups[popups.length] = {
-        object:contactOverlay,
-        iframe:"subpages/contact.html"
+        object:resumeOverlay,
+        iframe:"subpages/resume.html"
     };
 });
 // This is the target yaw of the camera, used to smoothly look around
@@ -394,6 +394,7 @@ for (const key in moveControls) {
         camera.rotation.set(defaultPitch, rotation, 0);
 
         updateDPad();
+        dpad.classList.add("moving");
     });
 }
 
@@ -473,6 +474,7 @@ function animate() {
         isMoving = sqrDist > threshold*threshold;
 
         if (!isMoving) {
+            dpad.classList.remove("moving");
             // rounds the rotation to the nearest 90 degree increment
             camTargetRotation = roundToNearest(camTargetRotation, Math.PI/2);
         }

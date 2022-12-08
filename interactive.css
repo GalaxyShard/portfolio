@@ -39,11 +39,14 @@ body, html {
     height:18px;
     --translation0:translateY(-16vh);
     --translation1:translateY(-12vh);
-    transition:opacity 0.25s;
+    transition:opacity 0.25s, filter 0.5s;
     opacity:1;
 }
 #dpad > *.invisible {
     opacity:0;
+}
+#dpad.moving > * {
+    filter:grayscale(1);
 }
 #rotate > * {
     width:50px;
