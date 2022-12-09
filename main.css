@@ -1,4 +1,6 @@
+/* Load the Audiowide font from google fonts */
 @import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
+
 h1,h4,.section-font {
     font-family:"Audiowide", fantasy;
 }
@@ -7,14 +9,5 @@ body {
 }
 .container-fluid {
     max-width:800px;
-    margin:50px auto 0 auto;
     background:#ffffff;
-}
-#sections button {
-    color:#007bff;
-    background-color: inherit;
-    border:0;
-}
-#sections button:hover {
-    cursor:pointer;
 }
