@@ -1,5 +1,4 @@
-/* Load the Audiowide font from google fonts */
-@import url("https://fonts.googleapis.com/css2?family=Audiowide&display=swap");
+@import url("fonts/audiowide.css");
 
 h1,h4,.section-font {
     font-family:"Audiowide", fantasy;
