@@ -5,8 +5,12 @@ h1,h4,.section-font {
 }
 body {
     background: #ff8000;
+    padding:0px 10px 0px 10px;
 }
 .container-fluid {
     max-width:800px;
     background:#ffffff;
+    padding: 0px 20px 20px 20px;
+    margin:40px auto 40px auto;
+    border-radius:5px;
 }

@@ -87,3 +87,15 @@ body, html {
     transform:rotate(90deg) var(--sidesTranslation);
 
 }
+#back {
+    top:5px;
+    left:5px;
+    background-color: red;
+    padding:5px;
+    border-radius:5px;
+}
+#back > a {
+    position:relative;
+    color:white;
+    text-decoration:none;
+}
