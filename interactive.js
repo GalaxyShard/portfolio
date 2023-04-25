@@ -297,14 +297,6 @@ function raycastScreenPoint(x,y) {
     return hits;
 }
 
-const popup = document.getElementById("popup");
-const closePopup = popup.getElementsByTagName("button")[0];
-const newTab = popup.getElementsByTagName("a")[0];
-const popupFrame = popup.getElementsByTagName("iframe")[0];
-closePopup.addEventListener("click", _ => {
-    popup.classList.remove("opened");
-});
-
 var lastClickTime = performance.now();
 window.addEventListener("pointerdown", e => {
     const hits = raycastScreenPoint(e.clientX, e.clientY);
@@ -323,17 +315,7 @@ window.addEventListener("pointerdown", e => {
             if (time-lastClickTime < 250 /* ms */) {
                 // if there is a subpage open it, otherwise navigate directly to site
                 if (frame.iframe) {
-                    popupFrame.src = frame.iframe;
-                    
-                    // disable "Open in new tab" if there is no dedicated website
-                    newTab.href = frame.href || "javascript:void()";
-                    if (frame.href) {
-                        newTab.classList.remove("invisible");
-                    } else {
-                        newTab.classList.add("invisible");
-                    }
-                    popup.classList.add("opened");
-
+                    openPopup(frame.iframe, frame.href);
                 } else {
                     window.location.href = frame.href;
                 }

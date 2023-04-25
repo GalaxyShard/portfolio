@@ -1,0 +1,76 @@
+@import url("fonts/audiowide.css");
+body {
+    background: #c0c0c0;
+    padding:0px 10px 0px 10px;
+}
+
+#map {
+    position:fixed;
+    top:20px;
+    left:20px;
+    right:20px;
+    bottom:20px;
+    background:black;
+    overflow:hidden;
+    border-radius:5px;
+}
+#map * {
+    position:absolute;
+}
+#map > div {
+    width:0;
+    height:0;
+    
+    top:calc(50% - var(--y) * 20px);
+    left:calc(50% + var(--x) * 20px);
+
+}
+#map > div > .title {
+    transform:translate(20px, -50%);
+    color:white;
+    
+    width:auto;
+    height:auto;
+    white-space:nowrap;
+    font-family:"Audiowide", fantasy;
+}
+#map > div > button {
+    transform: translate(-50%, -50%);
+    
+    background-color: white;
+    border-radius:0;
+    border:0;
+    width:20px;
+    height:20px;
+    display:block;
+
+    padding:0px;
+    margin:0px;
+
+    transition:width 0.15s, height 0.15s;
+}
+#map > div > button:hover {
+    width:30px;
+    height:30px;
+}
+#map > div > button:active {
+    background:lightgrey;
+}
+
+
+
+#back {
+    position:absolute;
+    z-index:1;
+
+    top:5px;
+    left:5px;
+    background-color:cornflowerblue;
+    padding:5px;
+    border-radius:5px;
+}
+#back > a {
+    position:relative;
+    color:white;
+    text-decoration:none;
+}
