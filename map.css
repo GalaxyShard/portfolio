@@ -2,6 +2,8 @@
 body {
     background: #c0c0c0;
     padding:0px 10px 0px 10px;
+    height:100%;
+    overflow:hidden;
 }
 :root {
     --grid-size:20px;

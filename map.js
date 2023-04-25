@@ -23,10 +23,12 @@ let lastTouchY = 0;
 function handleTouchMove(e) {
     let touchX = 0;
     let touchY = 0;
-    for (let touch of e.changedTouches) {
-        touchX += touch.clientX;
-        touchY += touch.clientY;
-    }
+    touchX = e.changedTouches[0].clientX;
+    touchY = e.changedTouches[0].clientY;
+    // for (let touch of e.changedTouches) {
+    //     touchX += touch.clientX;
+    //     touchY += touch.clientY;
+    // }
     dragMap(touchX - lastTouchX, touchY - lastTouchY);
     lastTouchX = touchX;
     lastTouchY = touchY;
@@ -47,10 +49,12 @@ map.addEventListener("touchstart", e => {
     map.addEventListener("touchmove", handleTouchMove);
     lastTouchX = 0;
     lastTouchY = 0;
-    for (let touch of e.changedTouches) {
-        lastTouchX += touch.clientX;
-        lastTouchY += touch.clientY;
-    }
+    lastTouchX = e.changedTouches[0].clientX;
+    lastTouchY = e.changedTouches[0].clientY;
+    // for (let touch of e.changedTouches) {
+    //     lastTouchX += touch.clientX;
+    //     lastTouchY += touch.clientY;
+    // }
 });
 map.addEventListener("touchend", handleTouchEnd);
 map.addEventListener("touchcancel", handleTouchEnd);
