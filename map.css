@@ -3,8 +3,11 @@ body {
     background: #c0c0c0;
     padding:0px 10px 0px 10px;
 }
+:root {
+    --grid-size:20px;
+}
 
-#map {
+#map-container {
     position:fixed;
     top:20px;
     left:20px;
@@ -14,6 +17,16 @@ body {
     overflow:hidden;
     border-radius:5px;
 }
+#map {
+    width:100%;
+    height:100%;
+    --map-offset-x: 0;
+    --map-offset-y: 0;
+    transform: translate(
+        calc(var(--map-offset-x) * 1px),
+        calc(var(--map-offset-y) * 1px)
+    );
+}
 #map * {
     position:absolute;
 }
@@ -21,12 +34,12 @@ body {
     width:0;
     height:0;
     
-    top:calc(50% - var(--y) * 20px);
-    left:calc(50% + var(--x) * 20px);
+    top:calc(50% - var(--y) * var(--grid-size));
+    left:calc(50% + var(--x) * var(--grid-size));
 
 }
 #map > div > .title {
-    transform:translate(20px, -50%);
+    transform:translate(var(--grid-size), -50%);
     color:white;
     
     width:auto;
@@ -40,8 +53,8 @@ body {
     background-color: white;
     border-radius:0;
     border:0;
-    width:20px;
-    height:20px;
+    width:var(--grid-size);
+    height:var(--grid-size);
     display:block;
 
     padding:0px;
