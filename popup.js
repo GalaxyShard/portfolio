@@ -3,12 +3,11 @@ const closePopup = popup.getElementsByTagName("button")[0];
 const newTab = popup.getElementsByTagName("a")[0];
 const popupFrame = popup.getElementsByTagName("iframe")[0];
 
-let closedEvent;
+let closedEvent = null;
 closePopup.addEventListener("click", _ => {
     popup.classList.remove("opened");
-    if (closedEvent) {
-        closedEvent();
-    }
+    closedEvent?.();
+    closedEvent = null;
 });
 
 function openPopup(subpage, extWebsite, onClose) {

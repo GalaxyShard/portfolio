@@ -25,8 +25,8 @@ body {
     --map-offset-x: 0;
     --map-offset-y: 0;
     transform: translate(
-        calc(var(--map-offset-x) * 1px),
-        calc(var(--map-offset-y) * 1px)
+        calc(1px * var(--map-offset-x)),
+        calc(1px * var(--map-offset-y))
     );
 }
 #map * {
@@ -36,8 +36,8 @@ body {
     width:0;
     height:0;
     
-    top:calc(50% - var(--y) * var(--grid-size));
-    left:calc(50% + var(--x) * var(--grid-size));
+    top:calc(50% - var(--grid-size) * var(--y));
+    left:calc(50% + var(--grid-size) * var(--x));
 
 }
 #map > div > .title {

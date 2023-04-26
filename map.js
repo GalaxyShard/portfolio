@@ -9,13 +9,14 @@ let map = document.getElementById("map");
 function dragMap(dx, dy) {
     let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || 0);
     let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || 0);
-    
+    console.log(x, y, dx, dy);
     let scale = 1;
     map.style.setProperty("--map-offset-x", `${x + dx*scale}`);
     map.style.setProperty("--map-offset-y", `${y + dy*scale}`);
 
 }
 function handleMouseMove(e) {
+    // console.log("mousemove: ", e.movementX, " ", e.movementY);
     dragMap(e.movementX, e.movementY);
 }
 let lastTouchX = 0;
@@ -40,7 +41,8 @@ function handleTouchEnd(e) {
     map.removeEventListener("touchmove", handleTouchMove);
 }
 map.addEventListener("mousedown", e => {
-    e.preventDefault();
+    // e.preventDefault();
+    console.log("mousedown");
     map.addEventListener("mousemove", handleMouseMove);
 });
 map.addEventListener("mouseup", handleMouseUp);
@@ -84,7 +86,7 @@ function createIcon(name, offsetX, offsetY, popup) {
 let clickHere = createIcon("Click here", 0, 0, {
     subpage: "subpages/click-here.html",
     closedEvent: () => {
-        localStorage.setItem("map-tutorial", true);
+        localStorage?.setItem("map-tutorial", true);
         createMap();
     },
 });
@@ -99,6 +101,6 @@ function createMap() {
     });
 }
 
-if (localStorage.getItem("map-tutorial")) {
+if (localStorage?.getItem("map-tutorial")) {
     createMap();
 }
