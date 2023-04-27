@@ -1,83 +1,68 @@
-
+import { openPopup } from "./popup.js";
 let map = document.getElementById("map");
-
 // TODO
 // possibly add random lines to the sides, or connect the icons
 // add sections or headers somehow for projects
 // possibly lay out the map like the interactive version, from a top-down perspective
-
 function dragMap(dx, dy) {
-    let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || 0);
-    let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || 0);
-    console.log(x, y, dx, dy);
+    let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
+    let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || "0");
     let scale = 1;
-    map.style.setProperty("--map-offset-x", `${x + dx*scale}`);
-    map.style.setProperty("--map-offset-y", `${y + dy*scale}`);
-
+    map.style.setProperty("--map-offset-x", `${x + dx * scale}`);
+    map.style.setProperty("--map-offset-y", `${y + dy * scale}`);
 }
 function handleMouseMove(e) {
-    // console.log("mousemove: ", e.movementX, " ", e.movementY);
     dragMap(e.movementX, e.movementY);
 }
 let lastTouchX = 0;
 let lastTouchY = 0;
+let touchId = null;
 function handleTouchMove(e) {
     let touchX = 0;
     let touchY = 0;
-    touchX = e.changedTouches[0].clientX;
-    touchY = e.changedTouches[0].clientY;
-    // for (let touch of e.changedTouches) {
-    //     touchX += touch.clientX;
-    //     touchY += touch.clientY;
-    // }
+    for (let touch of e.changedTouches) {
+        if (touch.identifier === touchId) {
+            touchX = e.changedTouches[0].clientX;
+            touchY = e.changedTouches[0].clientY;
+        }
+    }
     dragMap(touchX - lastTouchX, touchY - lastTouchY);
     lastTouchX = touchX;
     lastTouchY = touchY;
 }
-function handleMouseUp(e) {
+function handleMouseUp() {
     map.removeEventListener("mousemove", handleMouseMove);
 }
-function handleTouchEnd(e) {
+function handleTouchEnd() {
     map.removeEventListener("touchmove", handleTouchMove);
+    touchId = null;
 }
 map.addEventListener("mousedown", e => {
-    // e.preventDefault();
-    console.log("mousedown");
     map.addEventListener("mousemove", handleMouseMove);
 });
 map.addEventListener("mouseup", handleMouseUp);
 map.addEventListener("mouseleave", handleMouseUp);
 map.addEventListener("touchstart", e => {
     map.addEventListener("touchmove", handleTouchMove);
-    lastTouchX = 0;
-    lastTouchY = 0;
-    lastTouchX = e.changedTouches[0].clientX;
-    lastTouchY = e.changedTouches[0].clientY;
-    // for (let touch of e.changedTouches) {
-    //     lastTouchX += touch.clientX;
-    //     lastTouchY += touch.clientY;
-    // }
+    if (touchId === null) {
+        touchId = e.changedTouches[0].identifier;
+        lastTouchX = e.changedTouches[0].clientX;
+        lastTouchY = e.changedTouches[0].clientY;
+    }
 });
 map.addEventListener("touchend", handleTouchEnd);
 map.addEventListener("touchcancel", handleTouchEnd);
-
-
-
 function createIcon(name, offsetX, offsetY, popup) {
     let container = document.createElement("div");
     let button = document.createElement("button");
     let title = document.createElement("div");
-
     container.style.setProperty("--x", `${offsetX}`);
     container.style.setProperty("--y", `${offsetY}`);
-
     button.addEventListener("click", () => {
         openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
     });
-    
     title.textContent = name;
     title.classList.add("title");
-
     container.appendChild(button);
     container.appendChild(title);
     map.appendChild(container);
@@ -86,7 +71,7 @@ function createIcon(name, offsetX, offsetY, popup) {
 let clickHere = createIcon("Click here", 0, 0, {
     subpage: "subpages/click-here.html",
     closedEvent: () => {
-        localStorage?.setItem("map-tutorial", true);
+        localStorage === null || localStorage === void 0 ? void 0 : localStorage.setItem("map-tutorial", "true");
         createMap();
     },
 });
@@ -100,7 +85,6 @@ function createMap() {
         subpage: "subpages/about.html"
     });
 }
-
-if (localStorage?.getItem("map-tutorial")) {
+if (localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("map-tutorial")) {
     createMap();
 }

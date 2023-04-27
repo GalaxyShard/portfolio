@@ -2,40 +2,55 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+
+import { openPopup } from './popup.js'
 // functions that should be in Math
-function clamp(v, min, max) {
+function clamp(v: number, min: number, max: number) {
     return Math.max(min, Math.min(v, max));
 }
-function lerp(a, b, t) {
+function lerp(a: number, b: number, t: number) {
     return a+(b-a)*t;
 }
-function mod(a, n) {
+function mod(a: number, n: number) {
     return a - (n * Math.floor(a/n));
 }
-function roundToNearest(a, inc) {
+function roundToNearest(a: number, inc: number) {
     return Math.round(a/inc)*inc;
 }
 
 // helper functions
-function moveVector3To(v0, v1, delta) {
-    var toX = v1.x-v0.x;
-    var toY = v1.y-v0.y;
-    var toZ = v1.z-v0.z;
-    var sqrDist = toX*toX + toY*toY + toZ*toZ;
+function moveVector3To(v0: THREE.Vector3, v1: THREE.Vector3, delta: number) {
+    let toX = v1.x-v0.x;
+    let toY = v1.y-v0.y;
+    let toZ = v1.z-v0.z;
+    let sqrDist = toX*toX + toY*toY + toZ*toZ;
     if (sqrDist === 0 || sqrDist <= delta*delta) {
         v0.copy(v1);
         return;
     }
-    var dist = Math.sqrt(sqrDist);
+    let dist = Math.sqrt(sqrDist);
     v0.x += toX/dist*delta;
     v0.y += toY/dist*delta;
     v0.z += toZ/dist*delta;
 }
 
-function Vec2(x,y) { return new THREE.Vector2(x,y); }
+function Vec2(x: number, y: number) { return new THREE.Vector2(x,y); }
 // This is the map, each element is a location which has a position and
 // all of the other locations that the player can go to from there
-const map = {
+interface MapArea {
+    pos: THREE.Vector2,
+
+    north?: string,
+    south?: string,
+    east?: string,
+    west?: string,
+
+    northeast?: string,
+    northwest?: string,
+    southeast?: string,
+    southwest?: string,
+}
+const map: { [index: string]: MapArea } = {
     spawn: {
         pos:Vec2(0,0),
         northeast:"toProjects",
@@ -82,7 +97,7 @@ const map = {
         south:"project1",
     }
 };
-var currentArea = map.spawn;
+let currentArea: { [index: string]: any } = map.spawn;
 
 // Sets the pitch for the camera, can be used to look slightly up or down
 const defaultPitch = 0;
@@ -98,7 +113,7 @@ camera.rotation.x = defaultPitch;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.physicallyCorrectLights = true;
+renderer.useLegacyLights = false;
 document.body.appendChild(renderer.domElement);
 
 // Creates the floor, 100x100 meters, uses floor.png for a repeating texture
@@ -118,7 +133,7 @@ scene.add(floor);
 const textCanvas = document.createElement("canvas");
 textCanvas.width = 800;
 textCanvas.height = 200;
-const textContext = textCanvas.getContext("2d");
+const textContext = textCanvas.getContext("2d")!;
 textContext.fillStyle = "white";
 textContext.fillRect(0, 0, textCanvas.width, textCanvas.height);
 textContext.font = `70px Arial`;
@@ -156,13 +171,13 @@ const sun = new THREE.DirectionalLight(0xffffff, 3);
 sun.position.set(1, 1, -2).normalize();
 scene.add(sun);
 
-function newLight(intensity, dist, posX,posY,posZ) {
+function newLight(intensity: number, dist: number, posX: number, posY: number, posZ: number) {
     const pointLight = new THREE.PointLight(0xffffff, intensity, dist);
     pointLight.position.set(posX,posY,posZ);
     scene.add(pointLight);
     return pointLight;
 }
-newLight(10,100, 0,2,-1); // spawn
+newLight(10,100, 0,2,-2); // spawn
 newLight(5,100, -2,2,-8); // about
 newLight(5,100, 2,2,-12); // project0
 newLight(5,100, 2,2,-18); // project1
@@ -188,7 +203,7 @@ new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     const textMat = new THREE.MeshLambertMaterial({
         color:0xFFFFFF
     });
-    function createText(text, posX, posY, posZ, yaw) {
+    function createText(text: string, posX: number, posY: number, posZ: number, yaw: number) {
         const geo = new TextGeometry(text, {
             font: font,
             size: .5,
@@ -212,14 +227,19 @@ new FontLoader().loadAsync("./assets/helvetiker.typeface.json").then((font) => {
     createText("Resume", 0, 1.75, 9.25, Math.PI);
 });
 // 'popups' is a list of objects that, when double clicked, display a popup with information
-var popups = [];
+interface PopupInfo {
+    object: any,
+    iframe?: string,
+    href?: string,
+}
+let popups: PopupInfo[] = [];
 
 // Creates all of the billboards
 const loader = new GLTFLoader();
 loader.loadAsync("models/billboard.glb").then(gltf => {
     gltf.scene.scale.set(0.4,0.4,0.4);
-    function createBoard(posX, posY, posZ, yaw) {
-        var board = gltf.scene.clone();
+    function createBoard(posX: number, posY: number, posZ: number, yaw: number) {
+        let board = gltf.scene.clone();
         board.position.set(posX,posY,posZ);
         board.rotation.y = yaw;
         scene.add(board);
@@ -235,7 +255,7 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     const overlayGeo = new THREE.PlaneGeometry(3.8, 1.8);
     const genericTexLoader = new THREE.TextureLoader().loadAsync("images/generic.png");
     const backbtnTexLoader = new THREE.TextureLoader().loadAsync("images/backbtn.png");
-    function addOverlay(billboard, loader) {
+    function addOverlay(billboard: THREE.Group, loader: Promise<any>) {
         const mat = new THREE.MeshLambertMaterial();
         loader.then(tex => {
             mat.map = tex;
@@ -256,7 +276,7 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
 
     popups[popups.length] = {
         object:aboutOverlay,
-        iframe:"subpages/about.html"
+        iframe:"subpages/about.html",
     };
     popups[popups.length] = {
         object:project0Overlay,
@@ -283,13 +303,13 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     };
 });
 // This is the target yaw of the camera, used to smoothly look around
-var camTargetRotation = 0;
-var isMoving = false;
+let camTargetRotation = 0;
+let isMoving = false;
 
 // Finds the objects in front of the pointer
 const raycaster = new THREE.Raycaster();
 const pointerPos = new THREE.Vector2();
-function raycastScreenPoint(x,y) {
+function raycastScreenPoint(x: number, y: number) {
 	pointerPos.x = x / document.body.clientWidth * 2 - 1;
 	pointerPos.y = -y / document.body.clientHeight * 2 + 1;
     raycaster.setFromCamera(pointerPos, camera);
@@ -297,7 +317,7 @@ function raycastScreenPoint(x,y) {
     return hits;
 }
 
-var lastClickTime = performance.now();
+let lastClickTime = performance.now();
 window.addEventListener("pointerdown", e => {
     const hits = raycastScreenPoint(e.clientX, e.clientY);
 
@@ -311,13 +331,13 @@ window.addEventListener("pointerdown", e => {
         
         if (frame) {
             // check for a double click
-            var time = performance.now();
+            let time = performance.now();
             if (time-lastClickTime < 250 /* ms */) {
                 // if there is a subpage open it, otherwise navigate directly to site
                 if (frame.iframe) {
                     openPopup(frame.iframe, frame.href);
                 } else {
-                    window.location.href = frame.href;
+                    window.location.href = frame.href!;
                 }
             } else {
                 lastClickTime = time;
@@ -328,9 +348,9 @@ window.addEventListener("pointerdown", e => {
 // Used for smoothly moving the camera
 const targetPos = new THREE.Vector3();
 
-const dpad = document.getElementById("dpad");
-const rotateUI = document.getElementById("rotate");
-const moveControls = {
+const dpad = document.getElementById("dpad")!;
+const rotateUI = document.getElementById("rotate")!;
+const moveControls: { [index: string]: Element } = {
     north:dpad.getElementsByClassName("north")[0],
     south:dpad.getElementsByClassName("south")[0],
     west:dpad.getElementsByClassName("west")[0],
@@ -389,23 +409,17 @@ rotateControls.right.addEventListener("pointerdown", _ => {
 
 // fixes iOS zooming in on double clicks
 // touch-action:none; is supposed to already do this
-function iosZoomFix(element) {
+function iosZoomFix(element: Element) {
     element.addEventListener("touchstart", e => {
         e.preventDefault();
     });
 }
-iosZoomFix(renderer.domElement);
-iosZoomFix(dpad);
-iosZoomFix(rotateUI);
-for (const key in moveControls) {
-    iosZoomFix(moveControls[key]);
-}
-for (const key in rotateControls) {
-    iosZoomFix(rotateControls[key]);
+for (let element of document.querySelectorAll("body *")) {
+    iosZoomFix(element);
 }
 
 // updates the aspect ratio of the camera to adjust for mobile or pc and screen size changes
-const lastWindowSize = {};
+const lastWindowSize = {width: 0, height: 0};
 function updateAspectRatio() {
     camera.aspect = document.body.clientWidth / document.body.clientHeight;
     camera.fov = 70 / Math.min(camera.aspect, 1);

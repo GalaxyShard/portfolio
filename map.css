@@ -9,6 +9,13 @@ body {
     --grid-size:20px;
 }
 
+* {
+    /* supposed to prevent selecting elements, iOS requires extra */
+    touch-action:none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 #map-container {
     position:fixed;
     top:20px;

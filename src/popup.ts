@@ -1,16 +1,16 @@
-const popup = document.getElementById("popup");
+const popup = document.getElementById("popup")!;
 const closePopup = popup.getElementsByTagName("button")[0];
 const newTab = popup.getElementsByTagName("a")[0];
 const popupFrame = popup.getElementsByTagName("iframe")[0];
 
-let closedEvent = null;
+let closedEvent: (() => void) | undefined = undefined;
 closePopup.addEventListener("click", _ => {
     popup.classList.remove("opened");
     closedEvent?.();
-    closedEvent = null;
+    closedEvent = undefined;
 });
 
-function openPopup(subpage, extWebsite, onClose) {
+export function openPopup(subpage: string, extWebsite: string | undefined, onClose?: (() => void)) {
     if (popup.classList.contains("opened")) {
         return;
     }
