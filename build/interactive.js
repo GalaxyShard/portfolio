@@ -365,8 +365,14 @@ function iosZoomFix(element) {
         e.preventDefault();
     });
 }
-for (let element of document.querySelectorAll("body *")) {
-    iosZoomFix(element);
+iosZoomFix(renderer.domElement);
+iosZoomFix(dpad);
+iosZoomFix(rotateUI);
+for (const key in moveControls) {
+    iosZoomFix(moveControls[key]);
+}
+for (const key in rotateControls) {
+    iosZoomFix(rotateControls[key]);
 }
 // updates the aspect ratio of the camera to adjust for mobile or pc and screen size changes
 const lastWindowSize = { width: 0, height: 0 };

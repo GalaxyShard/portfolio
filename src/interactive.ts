@@ -50,7 +50,7 @@ interface MapArea {
     southeast?: string,
     southwest?: string,
 }
-const map: { [index: string]: MapArea } = {
+const map: Record<string, MapArea> = {
     spawn: {
         pos:Vec2(0,0),
         northeast:"toProjects",
@@ -97,7 +97,7 @@ const map: { [index: string]: MapArea } = {
         south:"project1",
     }
 };
-let currentArea: { [index: string]: any } = map.spawn;
+let currentArea: Record<string, any> = map.spawn;
 
 // Sets the pitch for the camera, can be used to look slightly up or down
 const defaultPitch = 0;
@@ -350,7 +350,7 @@ const targetPos = new THREE.Vector3();
 
 const dpad = document.getElementById("dpad")!;
 const rotateUI = document.getElementById("rotate")!;
-const moveControls: { [index: string]: Element } = {
+const moveControls: Record<string, Element> = {
     north:dpad.getElementsByClassName("north")[0],
     south:dpad.getElementsByClassName("south")[0],
     west:dpad.getElementsByClassName("west")[0],
@@ -361,7 +361,7 @@ const moveControls: { [index: string]: Element } = {
     northeast:dpad.getElementsByClassName("northeast")[0],
     southeast:dpad.getElementsByClassName("southeast")[0]
 };
-const rotateControls = {
+const rotateControls: Record<string, Element> = {
     left:rotateUI.getElementsByClassName("left")[0],
     right:rotateUI.getElementsByClassName("right")[0]
 }
@@ -414,8 +414,14 @@ function iosZoomFix(element: Element) {
         e.preventDefault();
     });
 }
-for (let element of document.querySelectorAll("body *")) {
-    iosZoomFix(element);
+iosZoomFix(renderer.domElement);
+iosZoomFix(dpad);
+iosZoomFix(rotateUI);
+for (const key in moveControls) {
+    iosZoomFix(moveControls[key]);
+}
+for (const key in rotateControls) {
+    iosZoomFix(rotateControls[key]);
 }
 
 // updates the aspect ratio of the camera to adjust for mobile or pc and screen size changes

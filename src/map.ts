@@ -5,6 +5,7 @@ let map = document.getElementById("map")!;
 // possibly add random lines to the sides, or connect the icons
 // add sections or headers somehow for projects
 // possibly lay out the map like the interactive version, from a top-down perspective
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 function dragMap(dx: number, dy: number) {
     let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
@@ -69,7 +70,9 @@ function createIcon(name: string, offsetX: number, offsetY: number, popup: { sub
     button.addEventListener("click", () => {
         openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
     });
-    
+    setTimeout(() => {
+        container.style.opacity = "1";
+    }, 1);
     title.textContent = name;
     title.classList.add("title");
 
@@ -86,11 +89,16 @@ let clickHere = createIcon("Click here", 0, 0, {
     },
 });
 let mapCreated = false;
-function createMap() {
+async function createMap() {
     if (mapCreated) {
         return;
     }
     mapCreated = true;
+    await delay(250);
+    
+    // TODO: add a dotted line
+    // https://stackoverflow.com/questions/32891173/animate-a-dotted-diagonal-line
+
     createIcon("About", -5, 6, {
         subpage: "subpages/about.html"
     });

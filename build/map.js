@@ -1,9 +1,19 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { openPopup } from "./popup.js";
 let map = document.getElementById("map");
 // TODO
 // possibly add random lines to the sides, or connect the icons
 // add sections or headers somehow for projects
 // possibly lay out the map like the interactive version, from a top-down perspective
+const delay = (ms) => new Promise(res => setTimeout(res, ms));
 function dragMap(dx, dy) {
     let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
     let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || "0");
@@ -61,6 +71,9 @@ function createIcon(name, offsetX, offsetY, popup) {
     button.addEventListener("click", () => {
         openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
     });
+    setTimeout(() => {
+        container.style.opacity = "1";
+    }, 1);
     title.textContent = name;
     title.classList.add("title");
     container.appendChild(button);
@@ -77,12 +90,17 @@ let clickHere = createIcon("Click here", 0, 0, {
 });
 let mapCreated = false;
 function createMap() {
-    if (mapCreated) {
-        return;
-    }
-    mapCreated = true;
-    createIcon("About", -5, 6, {
-        subpage: "subpages/about.html"
+    return __awaiter(this, void 0, void 0, function* () {
+        if (mapCreated) {
+            return;
+        }
+        mapCreated = true;
+        yield delay(250);
+        // TODO: add a dotted line
+        // https://stackoverflow.com/questions/32891173/animate-a-dotted-diagonal-line
+        createIcon("About", -5, 6, {
+            subpage: "subpages/about.html"
+        });
     });
 }
 if (localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("map-tutorial")) {

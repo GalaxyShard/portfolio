@@ -46,6 +46,8 @@ body {
     top:calc(50% - var(--grid-size) * var(--y));
     left:calc(50% + var(--grid-size) * var(--x));
 
+    opacity:0;
+    transition:opacity 0.25s;
 }
 #map > div > .title {
     transform:translate(var(--grid-size), -50%);
