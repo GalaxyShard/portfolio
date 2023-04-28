@@ -39,7 +39,7 @@ body {
 #map * {
     position:absolute;
 }
-#map > div {
+#map > .icon {
     width:0;
     height:0;
     
@@ -49,7 +49,7 @@ body {
     opacity:0;
     transition:opacity 0.25s;
 }
-#map > div > .title {
+#map > .icon > .title {
     transform:translate(var(--grid-size), -50%);
     color:white;
     
@@ -58,7 +58,7 @@ body {
     white-space:nowrap;
     font-family:"Audiowide", fantasy;
 }
-#map > div > button {
+#map > .icon > button {
     transform: translate(-50%, -50%);
     
     background-color: white;
@@ -73,11 +73,11 @@ body {
 
     transition:width 0.15s, height 0.15s;
 }
-#map > div > button:hover {
+#map > .icon > button:hover {
     width:30px;
     height:30px;
 }
-#map > div > button:active {
+#map > .icon > button:active {
     background:lightgrey;
 }
 

@@ -64,6 +64,7 @@ function createIcon(name: string, offsetX: number, offsetY: number, popup: { sub
     let button = document.createElement("button");
     let title = document.createElement("div");
 
+    container.classList.add("icon");
     container.style.setProperty("--x", `${offsetX}`);
     container.style.setProperty("--y", `${offsetY}`);
 
@@ -80,6 +81,14 @@ function createIcon(name: string, offsetX: number, offsetY: number, popup: { sub
     container.appendChild(title);
     map.appendChild(container);
     return { container: container, button: button, title: title };
+}
+function createLine(startX: number, startY: number, endX: number, endY: number) {
+    let container = document.createElement("div");
+
+    
+
+    map.appendChild(container);
+    return { container: container };
 }
 let clickHere = createIcon("Click here", 0, 0, {
     subpage: "subpages/click-here.html",
