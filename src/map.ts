@@ -70,9 +70,6 @@ function createIcon(name: string, offsetX: number, offsetY: number, popup: { sub
     button.addEventListener("click", () => {
         openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
     });
-    setTimeout(() => {
-        container.style.opacity = "1";
-    }, 1);
     title.textContent = name;
     title.classList.add("title");
 

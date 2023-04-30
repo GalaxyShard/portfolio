@@ -47,7 +47,11 @@ body {
     left:calc(50% + var(--grid-size) * var(--x));
 
     opacity:0;
-    transition:opacity 0.25s;
+    animation: fadeIn 0.25s ease forwards;
+}
+@keyframes fadeIn {
+    0% { opacity:0; }
+    100% { opacity:1; }
 }
 #map > div > .title {
     transform:translate(var(--grid-size), -50%);

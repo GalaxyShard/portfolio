@@ -71,9 +71,6 @@ function createIcon(name, offsetX, offsetY, popup) {
     button.addEventListener("click", () => {
         openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
     });
-    setTimeout(() => {
-        container.style.opacity = "1";
-    }, 1);
     title.textContent = name;
     title.classList.add("title");
     container.appendChild(button);
