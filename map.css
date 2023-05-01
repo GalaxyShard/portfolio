@@ -1,6 +1,6 @@
 @import url("fonts/audiowide.css");
 body {
-    background: #c0c0c0;
+    background: indigo;
     padding:0px 10px 0px 10px;
     height:100%;
     overflow:hidden;
@@ -39,7 +39,7 @@ body {
 #map * {
     position:absolute;
 }
-#map > .icon {
+#map > div {
     width:0;
     height:0;
     
@@ -47,11 +47,15 @@ body {
     left:calc(50% + var(--grid-size) * var(--x));
 
     opacity:0;
-    animation: fadeIn 0.25s ease forwards;
+    animation: fadeIn 1s ease forwards;
 }
 @keyframes fadeIn {
     0% { opacity:0; }
     100% { opacity:1; }
+}
+
+#map > .icon {
+    z-index:1;
 }
 #map > .icon > .title {
     transform:translate(var(--grid-size), -50%);
@@ -61,6 +65,8 @@ body {
     height:auto;
     white-space:nowrap;
     font-family:"Audiowide", fantasy;
+    
+    background-color: #000000c0;
 }
 #map > .icon > button {
     transform: translate(-50%, -50%);
@@ -85,6 +91,19 @@ body {
     background:lightgrey;
 }
 
+#map > .line > div {
+    /* subtract 2 units from length then translate forward (with translateX) by 1 unit to center the line between two icons */
+    width: calc(var(--grid-size) * (var(--length) - 2));
+
+    /* transform-origin and translateY is to correctly position the border to the center */
+    --border-size: 1px;
+    transform-origin:left center;
+    transform: translateY(calc(var(--border-size) / -2))
+        rotate(var(--angle))
+        translateX(var(--grid-size));
+
+    border-top:var(--border-size) solid aquamarine;
+}
 
 
 #back {
