@@ -1,10 +1,8 @@
 import { openPopup } from "./popup.js"
+
+let mapContainer = document.getElementById("map-container")!;
 let map = document.getElementById("map")!;
 
-// TODO
-// possibly add random lines to the sides, or connect the icons
-// add sections or headers somehow for projects
-// possibly lay out the map like the interactive version, from a top-down perspective
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 type Vec2 = [number, number];
@@ -32,26 +30,30 @@ function handleTouchMove(e: TouchEvent) {
     lastTouch = touchPos;
 }
 function handleMouseUp() {
-    map.removeEventListener("mousemove", handleMouseMove);
+    mapContainer.removeEventListener("mousemove", handleMouseMove);
 }
 function handleTouchEnd() {
-    map.removeEventListener("touchmove", handleTouchMove);
+    mapContainer.removeEventListener("touchmove", handleTouchMove);
     touchId = null;
 }
-map.addEventListener("mousedown", e => {
-    map.addEventListener("mousemove", handleMouseMove);
+mapContainer.addEventListener("mousedown", e => {
+    mapContainer.addEventListener("mousemove", handleMouseMove);
 });
-map.addEventListener("mouseup", handleMouseUp);
-map.addEventListener("mouseleave", handleMouseUp);
-map.addEventListener("touchstart", e => {
-    map.addEventListener("touchmove", handleTouchMove);
+mapContainer.addEventListener("mouseup", handleMouseUp);
+mapContainer.addEventListener("mouseleave", handleMouseUp);
+mapContainer.addEventListener("wheel", e => {
+    e.preventDefault();
+    dragMap([-e.deltaX, -e.deltaY]);
+});
+mapContainer.addEventListener("touchstart", e => {
+    mapContainer.addEventListener("touchmove", handleTouchMove);
     if (touchId === null) {
         touchId = e.changedTouches[0].identifier;
         lastTouch = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
     }
 });
-map.addEventListener("touchend", handleTouchEnd);
-map.addEventListener("touchcancel", handleTouchEnd);
+mapContainer.addEventListener("touchend", handleTouchEnd);
+mapContainer.addEventListener("touchcancel", handleTouchEnd);
 
 
 function createContainer(className: string, offset: Vec2) {

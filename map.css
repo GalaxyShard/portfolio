@@ -1,7 +1,6 @@
 @import url("fonts/audiowide.css");
 body {
     background: indigo;
-    padding:0px 10px 0px 10px;
     height:100%;
     overflow:hidden;
 }
@@ -25,6 +24,17 @@ body {
     background:black;
     overflow:hidden;
     border-radius:5px;
+
+}
+#map-container::after {
+    content: '';
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    pointer-events:none;
+    box-shadow: inset 0px 0px 20px 20px black;
 }
 #map {
     width:100%;
@@ -81,6 +91,8 @@ body {
     padding:0px;
     margin:0px;
 
+    box-shadow: 0px 0px 0px 5px #000000;
+
     transition:width 0.15s, height 0.15s;
 }
 #map > .icon > button:hover {
@@ -92,15 +104,13 @@ body {
 }
 
 #map > .line > div {
-    /* subtract 2 units from length then translate forward (with translateX) by 1 unit to center the line between two icons */
-    width: calc(var(--grid-size) * (var(--length) - 2));
+    width: calc(var(--grid-size) * var(--length));
 
     /* transform-origin and translateY is to correctly position the border to the center */
     --border-size: 1px;
     transform-origin:left center;
     transform: translateY(calc(var(--border-size) / -2))
-        rotate(var(--angle))
-        translateX(var(--grid-size));
+        rotate(var(--angle));
 
     border-top:var(--border-size) solid aquamarine;
 }
@@ -110,9 +120,9 @@ body {
     position:absolute;
     z-index:1;
 
-    top:5px;
-    left:5px;
-    background-color:cornflowerblue;
+    top:30px;
+    left:30px;
+    background-color:#c04000;
     padding:5px;
     border-radius:5px;
 }
@@ -120,4 +130,5 @@ body {
     position:relative;
     color:white;
     text-decoration:none;
+    font-family:"Audiowide", fantasy;
 }
