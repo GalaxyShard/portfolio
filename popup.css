@@ -34,6 +34,10 @@
     border:0;
     border-radius:5px 5px 0px 0px;
     border-bottom:2px solid black;
+
+    background-repeat:repeat-x;
+    background-image: url(images/grey-stripes.png);
+    background-size: contain;
 }
 #popup > button > div {
     left:0;
