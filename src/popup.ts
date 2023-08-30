@@ -1,28 +1,33 @@
-const popup = document.getElementById("popup")!;
-const closePopup = popup.getElementsByTagName("button")[0];
-const newTab = popup.getElementsByTagName("a")[0];
-const popupFrame = popup.getElementsByTagName("iframe")[0];
+const popup = document.createElement("div");
+popup.id = "popup";
+
+const closeButton = document.createElement("button");
+const triangle = document.createElement("div");
+
+closeButton.appendChild(triangle);
+popup.appendChild(closeButton);
+document.body.appendChild(popup);
+
+let popupFrame: HTMLIFrameElement | null = null;
 
 let closedEvent: (() => void) | undefined = undefined;
-closePopup.addEventListener("click", _ => {
+closeButton.addEventListener("click", _ => {
     popup.classList.remove("opened");
     closedEvent?.();
     closedEvent = undefined;
 });
 
-export function openPopup(subpage: string, extWebsite: string | undefined, onClose?: (() => void)) {
+export function openPopup(subpage: string, /*extWebsite: string | undefined,*/ onClose?: (() => void)) {
     if (popup.classList.contains("opened")) {
         return;
     }
+    // remove the previous frame to prevent slow connections from leaving it behind
+    popupFrame?.remove();
+    popupFrame = document.createElement("iframe");
     popupFrame.src = subpage;
+
+    popup.appendChild(popupFrame);
     closedEvent = onClose;
-    
-    // disable "Open in new tab" if there is no dedicated website
-    newTab.href = extWebsite || "javascript:void()";
-    if (extWebsite) {
-        newTab.classList.remove("invisible");
-    } else {
-        newTab.classList.add("invisible");
-    }
+
     popup.classList.add("opened");
 }

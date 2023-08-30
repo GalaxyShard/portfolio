@@ -70,7 +70,7 @@ function createIcon(name, offset, popup) {
     let button = document.createElement("button");
     let title = document.createElement("div");
     button.addEventListener("click", () => {
-        openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
+        openPopup(popup.subpage, popup.closedEvent);
     });
     title.textContent = name;
     title.classList.add("title");
@@ -95,7 +95,7 @@ function createLine(start, end) {
     map.appendChild(container);
     return { container: container };
 }
-createIcon("Click here", [0, 0], {
+createIcon("Start Here", [0, 0], {
     subpage: "subpages/click-here.html",
     closedEvent: () => {
         localStorage === null || localStorage === void 0 ? void 0 : localStorage.setItem("map-tutorial", "true");
@@ -126,7 +126,7 @@ function createMap() {
         });
         createIcon("Nua", project0Pos, {
             subpage: "subpages/nua.html",
-            extWebsite: "https://galaxyshard.github.io/nua/compiler.html"
+            // extWebsite: "https://galaxyshard.github.io/nua/compiler.html"
         });
         createIcon("Resumé", resumePos, {
             subpage: "subpages/resume.html"
@@ -136,14 +136,14 @@ function createMap() {
         yield delay(delayTime);
         createIcon("Retro Remake", project1Pos, {
             subpage: "subpages/retro-remake.html",
-            extWebsite: "https://galaxyshard-wdpp.github.io/retro-c-binary"
+            // extWebsite: "https://galaxyshard-wdpp.github.io/retro-c-binary"
         });
         yield delay(delayTime);
         createLine(project1Pos, project2Pos);
         yield delay(delayTime);
         createIcon("Cups & Pups", project2Pos, {
             subpage: "subpages/cups-pups.html",
-            extWebsite: "https://galaxyshard-wdpp.github.io/cups-pups"
+            // extWebsite: "https://galaxyshard-wdpp.github.io/cups-pups"
         });
     });
 }

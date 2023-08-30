@@ -281,17 +281,14 @@ loader.loadAsync("models/billboard.glb").then(gltf => {
     popups[popups.length] = {
         object:project0Overlay,
         iframe:"subpages/retro-remake.html",
-        href:"https://galaxyshard-wdpp.github.io/retro-c-binary"
     };
     popups[popups.length] = {
         object:project1Overlay,
         iframe:"subpages/cups-pups.html",
-        href:"https://galaxyshard-wdpp.github.io/cups-pups"
     };
     popups[popups.length] = {
         object:project2Overlay,
         iframe:"subpages/nua.html",
-        href:"https://galaxyshard.github.io/nua/compiler.html"
     };
     popups[popups.length] = {
         object:backBtnOverlay,
@@ -335,7 +332,7 @@ window.addEventListener("pointerdown", e => {
             if (time-lastClickTime < 250 /* ms */) {
                 // if there is a subpage open it, otherwise navigate directly to site
                 if (frame.iframe) {
-                    openPopup(frame.iframe, frame.href);
+                    openPopup(frame.iframe);
                 } else {
                     window.location.href = frame.href!;
                 }

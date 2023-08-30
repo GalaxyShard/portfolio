@@ -1,6 +1,5 @@
 #popup * {
     position:absolute;
-    z-index:2;
 }
 #popup {
     position:fixed;
@@ -17,53 +16,45 @@
 
     transform:translateY(0);
     transition:transform 0.5s;
+
+    --offset-height: 35px;
 }
 #popup.opened {
     transform:translateY(-100vh);
 }
 #popup > button {
-    width:30px;
-    height:30px;
-    top:5px;
-    left:5px;
+    width:100%;
+    height:var(--offset-height);
 
     display:block;
-    background-color: #ff0000;
+    background-color: dimgray;
     color:#ffffff;
     cursor:pointer;
 
     border:0;
-    border-radius:5px;
+    border-radius:5px 5px 0px 0px;
+    border-bottom:2px solid black;
 }
-#popup > a {
-    width:150px;
-    height:30px;
-    line-height:30px;
-    top:5px;
-    left:40px;
-
-    display:block;
-    background-color: #0080ff;
-    color:#ffffff;
-
-    text-align: center;
-    text-decoration: none;
-    border:0;
-    border-radius:5px;
-
-    animation:linkAnimation 1s alternate infinite;
+#popup > button > div {
+    left:0;
+    right:0;
+    margin:0 auto 0 auto;
+    top:6px;
+    width:calc(20px * 400 / 130 * 3);
+    height:20px;
+    background-repeat:repeat-x;
+    background-image: url(images/arrows.png);
+    background-size: contain;
+    transition:.25s top;
 }
-@keyframes linkAnimation {
-    0% { background-color: #0080ff; }
-    100% { background-color: #00a0ff; }
-}
-#popup > a.invisible {
-    display:none;
+#popup > button:hover > div {
+    top:8px;
 }
 #popup > iframe {
     box-sizing:content-box;
+    border:0;
     left:0;
     width:100%;
-    height:calc(100% - 40px);
+    height:calc(100% - var(--offset-height));
     bottom:0;
 }

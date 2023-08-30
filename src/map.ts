@@ -63,13 +63,13 @@ function createContainer(className: string, offset: Vec2) {
     container.style.setProperty("--y", `${offset[1]}`);
     return container;
 }
-function createIcon(name: string, offset: Vec2, popup: { subpage: any; closedEvent?: any; extWebsite?: any; }) {
+function createIcon(name: string, offset: Vec2, popup: { subpage: any; closedEvent?: any; /*extWebsite?: any;*/ }) {
     let container = createContainer("icon", offset);
     let button = document.createElement("button");
     let title = document.createElement("div");
 
     button.addEventListener("click", () => {
-        openPopup(popup.subpage, popup.extWebsite, popup.closedEvent);
+        openPopup(popup.subpage, popup.closedEvent);
     });
     title.textContent = name;
     title.classList.add("title");
@@ -99,7 +99,7 @@ function createLine(start: Vec2, end: Vec2) {
     map.appendChild(container);
     return { container: container };
 }
-createIcon("Click here", [0, 0], {
+createIcon("Start Here", [0, 0], {
     subpage: "subpages/click-here.html",
     closedEvent: () => {
         localStorage?.setItem("map-tutorial", "true");
@@ -132,7 +132,7 @@ async function createMap() {
     });
     createIcon("Nua", project0Pos, {
         subpage: "subpages/nua.html",
-        extWebsite: "https://galaxyshard.github.io/nua/compiler.html"
+        // extWebsite: "https://galaxyshard.github.io/nua/compiler.html"
     });
     createIcon("Resumé", resumePos, {
         subpage: "subpages/resume.html"
@@ -144,7 +144,7 @@ async function createMap() {
     await delay(delayTime);
     createIcon("Retro Remake", project1Pos, {
         subpage: "subpages/retro-remake.html",
-        extWebsite: "https://galaxyshard-wdpp.github.io/retro-c-binary"
+        // extWebsite: "https://galaxyshard-wdpp.github.io/retro-c-binary"
     });
 
     await delay(delayTime);
@@ -153,7 +153,7 @@ async function createMap() {
     await delay(delayTime);
     createIcon("Cups & Pups", project2Pos, {
         subpage: "subpages/cups-pups.html",
-        extWebsite: "https://galaxyshard-wdpp.github.io/cups-pups"
+        // extWebsite: "https://galaxyshard-wdpp.github.io/cups-pups"
     });
 }
 
