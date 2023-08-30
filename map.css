@@ -114,20 +114,3 @@ body {
 
     border-top:var(--border-size) solid aquamarine;
 }
-
-
-#back {
-    position:absolute;
-    display:block;
-    z-index:1;
-
-    top:30px;
-    left:30px;
-    background-color:#c04000;
-    padding:5px;
-    border-radius:5px;
-
-    color:white;
-    text-decoration:none;
-    font-family:"Audiowide", fantasy;
-}

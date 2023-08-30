@@ -17,7 +17,7 @@ closeButton.addEventListener("click", _ => {
     closedEvent = undefined;
 });
 
-export function openPopup(subpage: string, /*extWebsite: string | undefined,*/ onClose?: (() => void)) {
+export function openPopup(subpage: string, onClose?: (() => void)) {
     if (popup.classList.contains("opened")) {
         return;
     }

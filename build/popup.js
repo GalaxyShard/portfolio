@@ -12,7 +12,7 @@ closeButton.addEventListener("click", _ => {
     closedEvent === null || closedEvent === void 0 ? void 0 : closedEvent();
     closedEvent = undefined;
 });
-export function openPopup(subpage, /*extWebsite: string | undefined,*/ onClose) {
+export function openPopup(subpage, onClose) {
     if (popup.classList.contains("opened")) {
         return;
     }

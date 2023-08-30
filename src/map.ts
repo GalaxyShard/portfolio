@@ -132,7 +132,6 @@ async function createMap() {
     });
     createIcon("Nua", project0Pos, {
         subpage: "subpages/nua.html",
-        // extWebsite: "https://galaxyshard.github.io/nua/compiler.html"
     });
     createIcon("Resumé", resumePos, {
         subpage: "subpages/resume.html"
@@ -144,7 +143,6 @@ async function createMap() {
     await delay(delayTime);
     createIcon("Retro Remake", project1Pos, {
         subpage: "subpages/retro-remake.html",
-        // extWebsite: "https://galaxyshard-wdpp.github.io/retro-c-binary"
     });
 
     await delay(delayTime);
@@ -153,7 +151,6 @@ async function createMap() {
     await delay(delayTime);
     createIcon("Cups & Pups", project2Pos, {
         subpage: "subpages/cups-pups.html",
-        // extWebsite: "https://galaxyshard-wdpp.github.io/cups-pups"
     });
 }
 
