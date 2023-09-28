@@ -168,6 +168,10 @@ async function createMap() {
             name: "Cups & Pups",
             subpage: "subpages/cups-pups.html",
         },
+        2: {
+            name: "Piroll Design",
+            subpage: "subpages/piroll-design.html",
+        },
         8: {
             name: "Retro Remake",
             subpage: "subpages/retro-remake.html",
@@ -180,7 +184,7 @@ async function createMap() {
             name: "Resumé",
             subpage: "subpages/resume.html",
         },
-        7: {
+        6: {
             name: "Nua",
             subpage: "subpages/nua.html",
         },

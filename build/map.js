@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { openPopup } from "./popup.js";
 let mapContainer = document.getElementById("map-container");
 let map = document.getElementById("map");
@@ -94,100 +103,105 @@ createIcon("Start Here", [0, 0], {
     },
 });
 let mapCreated = false;
-async function createMap() {
-    if (mapCreated) {
-        return;
-    }
-    mapCreated = true;
-    const delayTime = 250;
-    const startPos = [0, 0];
-    const aboutPos = [-5, 6];
-    const project0Pos = [4, 7];
-    const project1Pos = [7, 11];
-    const project2Pos = [4, 15];
-    const resumePos = [0, -6];
-    const triangle = [
-        [-1.56, 10], [1.23, 10],
-        [-1.52, 5.202],
-        [-0.2, 2.24],
-        [-2.1, -2.19], [2.9, -1.595], [6.3, -2.19],
-        [-9.8, -4.595], [-3.9, -4.45], [10.66, -4.45],
-        [-8.33, -6.89], [9.25, -6.89], // 10, 11
-    ];
-    //           0---1
-    //         /  \   \
-    //        /    \   \
-    //       /   2  \   \
-    //      /   / \  \   \
-    //     /   /   3  \   \
-    //    /   /   / \  \   \
-    //   /   /   4---5--6   \
-    //  /   /   /            \
-    // 7   /   8--------------9
-    //  \ /                  /
-    //   10----------------11
-    const lines = [
-        2, 5,
-        3, 8,
-        4, 6,
-        2, 3,
-        4, 8,
-        5, 6,
-        2, 10,
-        8, 9,
-        0, 6,
-        7, 10,
-        10, 11,
-        9, 11,
-        1, 9,
-        0, 1,
-        0, 7,
-    ];
-    function getPos(index) {
-        let scale = 2.5;
-        return [triangle[index][0] * scale, triangle[index][1] * scale];
-    }
-    const mapIcons = {
-        0: {
-            name: "Cups & Pups",
-            subpage: "subpages/cups-pups.html",
-        },
-        8: {
-            name: "Retro Remake",
-            subpage: "subpages/retro-remake.html",
-        },
-        3: {
-            name: "About",
-            subpage: "subpages/about.html",
-        },
-        4: {
-            name: "Resumé",
-            subpage: "subpages/resume.html",
-        },
-        7: {
-            name: "Nua",
-            subpage: "subpages/nua.html",
-        },
-    };
-    let initializedIcons = {};
-    for (let i = 0; i < lines.length; i += 2) {
-        await delay(delayTime);
-        let a_index = lines[i];
-        let b_index = lines[i + 1];
-        let a = a_index == -1 ? [0, 0] : getPos(a_index);
-        let b = b_index == -1 ? [0, 0] : getPos(b_index);
-        createLine(a, b);
-        if (initializedIcons[a_index] != true && mapIcons[a_index]) {
-            createIcon(mapIcons[a_index].name, a, { subpage: mapIcons[a_index].subpage, closedEvent: mapIcons[a_index].closedEvent });
+function createMap() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (mapCreated) {
+            return;
         }
-        if (initializedIcons[b_index] != true && mapIcons[b_index]) {
-            createIcon(mapIcons[b_index].name, b, { subpage: mapIcons[b_index].subpage, closedEvent: mapIcons[b_index].closedEvent });
+        mapCreated = true;
+        const delayTime = 250;
+        const startPos = [0, 0];
+        const aboutPos = [-5, 6];
+        const project0Pos = [4, 7];
+        const project1Pos = [7, 11];
+        const project2Pos = [4, 15];
+        const resumePos = [0, -6];
+        const triangle = [
+            [-1.56, 10], [1.23, 10],
+            [-1.52, 5.202],
+            [-0.2, 2.24],
+            [-2.1, -2.19], [2.9, -1.595], [6.3, -2.19],
+            [-9.8, -4.595], [-3.9, -4.45], [10.66, -4.45],
+            [-8.33, -6.89], [9.25, -6.89], // 10, 11
+        ];
+        //           0---1
+        //         /  \   \
+        //        /    \   \
+        //       /   2  \   \
+        //      /   / \  \   \
+        //     /   /   3  \   \
+        //    /   /   / \  \   \
+        //   /   /   4---5--6   \
+        //  /   /   /            \
+        // 7   /   8--------------9
+        //  \ /                  /
+        //   10----------------11
+        const lines = [
+            2, 5,
+            3, 8,
+            4, 6,
+            2, 3,
+            4, 8,
+            5, 6,
+            2, 10,
+            8, 9,
+            0, 6,
+            7, 10,
+            10, 11,
+            9, 11,
+            1, 9,
+            0, 1,
+            0, 7,
+        ];
+        function getPos(index) {
+            let scale = 2.5;
+            return [triangle[index][0] * scale, triangle[index][1] * scale];
         }
-        initializedIcons[a_index] = true;
-        initializedIcons[b_index] = true;
-    }
+        const mapIcons = {
+            0: {
+                name: "Cups & Pups",
+                subpage: "subpages/cups-pups.html",
+            },
+            2: {
+                name: "Piroll Design",
+                subpage: "subpages/piroll-design.html",
+            },
+            8: {
+                name: "Retro Remake",
+                subpage: "subpages/retro-remake.html",
+            },
+            3: {
+                name: "About",
+                subpage: "subpages/about.html",
+            },
+            4: {
+                name: "Resumé",
+                subpage: "subpages/resume.html",
+            },
+            6: {
+                name: "Nua",
+                subpage: "subpages/nua.html",
+            },
+        };
+        let initializedIcons = {};
+        for (let i = 0; i < lines.length; i += 2) {
+            yield delay(delayTime);
+            let a_index = lines[i];
+            let b_index = lines[i + 1];
+            let a = a_index == -1 ? [0, 0] : getPos(a_index);
+            let b = b_index == -1 ? [0, 0] : getPos(b_index);
+            createLine(a, b);
+            if (initializedIcons[a_index] != true && mapIcons[a_index]) {
+                createIcon(mapIcons[a_index].name, a, { subpage: mapIcons[a_index].subpage, closedEvent: mapIcons[a_index].closedEvent });
+            }
+            if (initializedIcons[b_index] != true && mapIcons[b_index]) {
+                createIcon(mapIcons[b_index].name, b, { subpage: mapIcons[b_index].subpage, closedEvent: mapIcons[b_index].closedEvent });
+            }
+            initializedIcons[a_index] = true;
+            initializedIcons[b_index] = true;
+        }
+    });
 }
 if (localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("map-tutorial")) {
     createMap();
 }
-
