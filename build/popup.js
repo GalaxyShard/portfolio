@@ -5,7 +5,7 @@ popup.setAttribute("role", "dialog");
 popup.setAttribute("aria-modal", "true");
 popup.setAttribute("aria-hidden", "true");
 const closeButton = document.createElement("button");
-closeButton.setAttribute("ariaLabel", "Close");
+closeButton.setAttribute("aria-label", "Close");
 const arrows = document.createElement("div");
 closeButton.appendChild(arrows);
 popup.appendChild(closeButton);

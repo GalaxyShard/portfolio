@@ -15,7 +15,10 @@ h1 {
     text-align:center;
     font-family: "Audiowide", fantasy;
 }
-section {
+.text-center {
+    text-align:center;
+}
+main {
     position:absolute;
     left:20px;
     top:20px;

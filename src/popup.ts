@@ -7,7 +7,7 @@ popup.setAttribute("aria-hidden","true");
 
 
 const closeButton = document.createElement("button");
-closeButton.setAttribute("ariaLabel", "Close");
+closeButton.setAttribute("aria-label", "Close");
 
 const arrows = document.createElement("div");
 

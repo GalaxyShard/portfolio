@@ -140,7 +140,7 @@ function createLine(start, end) {
     return { container: container };
 }
 let icon = createIcon("Start Here", [0, 0], {
-    subpage: "subpages/click-here.html",
+    subpage: "subpages/start-here.html",
     closedEvent: () => {
         localStorage === null || localStorage === void 0 ? void 0 : localStorage.setItem("map-tutorial", "true");
         createMap();

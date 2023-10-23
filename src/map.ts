@@ -149,7 +149,7 @@ function createLine(start: Vec2, end: Vec2) {
     return { container: container };
 }
 let icon = createIcon("Start Here", [0, 0], {
-    subpage: "subpages/click-here.html",
+    subpage: "subpages/start-here.html",
     closedEvent: () => {
         localStorage?.setItem("map-tutorial", "true");
         createMap();
