@@ -22,6 +22,9 @@
 #popup.opened {
     transform:translateY(-100vh);
 }
+#popup.closed {
+    visibility:hidden;
+}
 #popup > button {
     width:100%;
     height:var(--offset-height);
@@ -55,7 +58,6 @@
     top:8px;
 }
 #popup > iframe {
-    box-sizing:content-box;
     border:0;
     left:0;
     width:100%;

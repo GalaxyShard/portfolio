@@ -6,6 +6,36 @@ let map = document.getElementById("map")!;
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 type Vec2 = [number, number];
+function scrollToPosition(pos: Vec2) {
+    // map-offset is measured in pixels, positions measured in grid tiles (20px each);
+    const scale = 20;
+    map.style.setProperty("--map-offset-x", `${pos[0]*scale}`);
+    map.style.setProperty("--map-offset-y", `${pos[1]*scale}`);
+}
+function putInView(pos: Vec2) {
+    // map-offset is measured in pixels, positions measured in grid tiles (20px each);
+    const scale = 20;
+
+    let viewWidth = map.clientWidth;
+    let viewHeight = map.clientHeight;
+    let posPx = [pos[0] * scale, pos[1] * scale];
+
+    let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
+    let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || "0");
+
+    let inset = 20;
+    let insetRight = 100;
+    // position is offscreen; center it
+    if (
+        x > posPx[0] && x-viewWidth/2+inset > posPx[0]
+        || x < posPx[0] && x+viewWidth/2-insetRight < posPx[0]
+        || y > posPx[1] && y-viewHeight/2+inset > posPx[1]
+        || y < posPx[1] && y+viewHeight/2-inset < posPx[1]
+    ) {
+        map.style.setProperty("--map-offset-x", `${posPx[0]}`);
+        map.style.setProperty("--map-offset-y", `${posPx[1]}`);
+    }
+}
 function dragMap(delta: Vec2) {
     let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
     let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || "0");
@@ -15,18 +45,23 @@ function dragMap(delta: Vec2) {
 
 }
 function handleMouseMove(e: MouseEvent) {
-    dragMap([e.movementX, e.movementY]);
+    dragMap([-e.movementX, e.movementY]);
 }
 let lastTouch: Vec2 = [0, 0];
 let touchId: number | null = null;
 function handleTouchMove(e: TouchEvent) {
     let touchPos: Vec2 = [0, 0];
+    let touchFound = false;
     for (let touch of e.changedTouches) {
         if (touch.identifier === touchId) {
             touchPos = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
+            touchFound = true;
         }
     }
-    dragMap([touchPos[0] - lastTouch[0], touchPos[1] - lastTouch[1]]);
+    if (!touchFound) {
+        return;
+    }
+    dragMap([-(touchPos[0] - lastTouch[0]), touchPos[1] - lastTouch[1]]);
     lastTouch = touchPos;
 }
 function handleMouseUp() {
@@ -43,7 +78,7 @@ mapContainer.addEventListener("mouseup", handleMouseUp);
 mapContainer.addEventListener("mouseleave", handleMouseUp);
 mapContainer.addEventListener("wheel", e => {
     e.preventDefault();
-    dragMap([-e.deltaX, -e.deltaY]);
+    dragMap([e.deltaX, -e.deltaY]);
 });
 mapContainer.addEventListener("touchstart", e => {
     mapContainer.addEventListener("touchmove", handleTouchMove);
@@ -63,21 +98,35 @@ function createContainer(className: string, offset: Vec2) {
     container.style.setProperty("--y", `${offset[1]}`);
     return container;
 }
+let iconCount = 0;
 function createIcon(name: string, offset: Vec2, popup: { subpage: string; closedEvent?: any }) {
     let container = createContainer("icon", offset);
-    let button = document.createElement("button");
-    let title = document.createElement("div");
+    let open = document.createElement("button");
+    let title = document.createElement("label");
 
-    button.addEventListener("click", () => {
-        openPopup(popup.subpage, popup.closedEvent);
+    open.id = `icon-${iconCount}`;
+    title.htmlFor = `icon-${iconCount}`;
+    iconCount++;
+
+    open.addEventListener("click", e => {
+        if (openPopup(popup.subpage, () => {
+            map.inert = false;
+            open.focus();
+            popup.closedEvent?.();
+        })) {
+            map.inert = true;
+        }
+    });
+    open.addEventListener("focus", e => {
+        putInView(offset);
     });
     title.textContent = name;
     title.classList.add("title");
 
-    container.appendChild(button);
+    container.appendChild(open);
     container.appendChild(title);
     map.appendChild(container);
-    return { container: container, button: button, title: title };
+    return { container: container, open: open, title: title };
 }
 function dist(a: Vec2, b: Vec2) {
     let dx = b[0] - a[0];
@@ -99,13 +148,15 @@ function createLine(start: Vec2, end: Vec2) {
     map.appendChild(container);
     return { container: container };
 }
-createIcon("Start Here", [0, 0], {
+let icon = createIcon("Start Here", [0, 0], {
     subpage: "subpages/click-here.html",
     closedEvent: () => {
         localStorage?.setItem("map-tutorial", "true");
         createMap();
     },
 });
+icon.open.tabIndex = 1;
+
 let mapCreated = false;
 async function createMap() {
     if (mapCreated) {
@@ -141,6 +192,14 @@ async function createMap() {
     // 7   /   8--------------9
     //  \ /                  /
     //   10----------------11
+    function getTabIndex(location: number) : number {
+        const tabindices: number[] = [
+            // indices to triangle; tabindex is the index to this array + 2 (eg: 3 has a tabindex of 2)
+            3, 4, 5, 2, 8, 6, 1, 0, 7, 10, 11, 9
+        ];
+        return tabindices.findIndex(v => v==location) + 2;
+    }
+    // pairs of indices to `triangle`
     const lines: number[] = [
         2, 5,
         3, 8,
@@ -198,14 +257,15 @@ async function createMap() {
         let b: Vec2 = b_index == -1 ? [0,0] : getPos(b_index);
         createLine(a, b);
 
-        if (initializedIcons[a_index] != true && mapIcons[a_index]) {
-            createIcon(mapIcons[a_index].name, a, { subpage: mapIcons[a_index].subpage, closedEvent: mapIcons[a_index].closedEvent });
+        function tryInitializeIcon(index: number, pos: Vec2) {
+            if (initializedIcons[index] != true && mapIcons[index]) {
+                let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
+                icon.open.tabIndex = getTabIndex(index);
+                initializedIcons[index] = true;
+            }
         }
-        if (initializedIcons[b_index] != true && mapIcons[b_index]) {
-            createIcon(mapIcons[b_index].name, b, { subpage: mapIcons[b_index].subpage, closedEvent: mapIcons[b_index].closedEvent });
-        }
-        initializedIcons[a_index] = true;
-        initializedIcons[b_index] = true;
+        tryInitializeIcon(a_index, a);
+        tryInitializeIcon(b_index, b);
     }
 }
 

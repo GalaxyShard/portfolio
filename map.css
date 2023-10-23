@@ -4,9 +4,6 @@ body {
     height:100%;
     overflow:hidden;
 }
-:root {
-    --grid-size:20px;
-}
 
 * {
     /* supposed to prevent selecting elements, iOS requires extra */
@@ -42,9 +39,10 @@ body {
     --map-offset-x: 0;
     --map-offset-y: 0;
     transform: translate(
-        calc(1px * var(--map-offset-x)),
+        calc(-1px * var(--map-offset-x)),
         calc(1px * var(--map-offset-y))
     );
+    --grid-size:20px;
 }
 #map * {
     position:absolute;
@@ -68,7 +66,11 @@ body {
     z-index:1;
 }
 #map > .icon > .title {
-    transform:translate(var(--grid-size), -50%);
+    transform:translate(calc(var(--grid-size) - 10px), -50%);
+    
+    padding-left:10px;
+    z-index:-1;
+
     color:white;
     
     width:auto;
