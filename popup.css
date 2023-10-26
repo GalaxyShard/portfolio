@@ -17,7 +17,7 @@
     transform:translateY(0);
     transition:transform 0.5s;
 
-    --offset-height: 35px;
+    --offset-height: 40px;
 }
 #popup.opened {
     transform:translateY(-100vh);
@@ -47,8 +47,8 @@
     right:0;
     margin:0 auto 0 auto;
     top:6px;
-    width:calc(20px * 400 / 130 * 3);
-    height:20px;
+    width:calc(24px * 400 / 130 * 3);
+    height:24px;
     background-repeat:repeat-x;
     background-image: url(images/arrows.png);
     background-size: contain;

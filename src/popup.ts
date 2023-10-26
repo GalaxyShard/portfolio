@@ -3,7 +3,7 @@ popup.id = "popup";
 popup.classList.add("closed");
 popup.setAttribute("role", "dialog");
 popup.setAttribute("aria-modal", "true");
-popup.setAttribute("aria-hidden","true");
+popup.setAttribute("aria-hidden", "true");
 
 
 const closeButton = document.createElement("button");
