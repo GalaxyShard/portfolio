@@ -36,7 +36,7 @@ img.float-right {
     float:right;
 }
 img.float-left, img.float-right {
-    margin:0px 5px 5px 0px;
+    margin:0px 10px 10px 0px;
     border-radius:10px;
 }
 .linked-page {

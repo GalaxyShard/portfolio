@@ -219,21 +219,29 @@ function createMap() {
                 name: "Piroll Design",
                 subpage: "subpages/piroll-design.html",
             },
-            8: {
-                name: "Retro Remake",
-                subpage: "subpages/retro-remake.html",
-            },
             3: {
                 name: "About",
                 subpage: "subpages/about.html",
             },
-            4: {
-                name: "Resumé",
-                subpage: "subpages/resume.html",
+            // 4: {
+            //     name: "Resumé",
+            //     subpage: "subpages/resume.html",
+            // },
+            5: {
+                name: "Montecito",
+                subpage: "subpages/montecito.html",
             },
             6: {
+                name: "Waver",
+                subpage: "subpages/waver.html",
+            },
+            8: {
                 name: "Nua",
                 subpage: "subpages/nua.html",
+            },
+            9: {
+                name: "Retro Remake",
+                subpage: "subpages/retro-remake.html",
             },
         };
         let initializedIcons = {};
