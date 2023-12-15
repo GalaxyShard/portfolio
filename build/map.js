@@ -212,8 +212,8 @@ function createMap() {
         }
         const mapIcons = {
             0: {
-                name: "Cups & Pups",
-                subpage: "subpages/cups-pups.html",
+                name: "Cats & Cups",
+                subpage: "subpages/cats-and-cups.html",
             },
             2: {
                 name: "Piroll Design",
@@ -240,8 +240,8 @@ function createMap() {
                 subpage: "subpages/nua.html",
             },
             9: {
-                name: "Retro Remake",
-                subpage: "subpages/retro-remake.html",
+                name: "Retro Remaster",
+                subpage: "subpages/retro-remaster.html",
             },
         };
         let initializedIcons = {};
