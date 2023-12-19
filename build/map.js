@@ -11,11 +11,22 @@ import { openPopup } from "./popup.js";
 let mapContainer = document.getElementById("map-container");
 let map = document.getElementById("map");
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
-function scrollToPosition(pos) {
-    // map-offset is measured in pixels, positions measured in grid tiles (20px each);
+function setPositionRaw(pos) {
+    let x = Math.min(Math.max(pos[0], -500), 500);
+    let y = Math.min(Math.max(pos[1], -500), 500);
+    map.style.setProperty("--map-offset-x", `${x}`);
+    map.style.setProperty("--map-offset-y", `${y}`);
+}
+function getPosition() {
+    return [
+        parseFloat(map.style.getPropertyValue("--map-offset-x") || "0"),
+        parseFloat(map.style.getPropertyValue("--map-offset-y") || "0"),
+    ];
+}
+function scrollToGridPosition(pos) {
+    // map-offset is measured in logical pixels, grid position is measured in tiles (20px each);
     const scale = 20;
-    map.style.setProperty("--map-offset-x", `${pos[0] * scale}`);
-    map.style.setProperty("--map-offset-y", `${pos[1] * scale}`);
+    setPositionRaw([pos[0] * scale, pos[1] * scale]);
 }
 function putInView(pos) {
     // map-offset is measured in pixels, positions measured in grid tiles (20px each);
@@ -23,8 +34,7 @@ function putInView(pos) {
     let viewWidth = map.clientWidth;
     let viewHeight = map.clientHeight;
     let posPx = [pos[0] * scale, pos[1] * scale];
-    let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
-    let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || "0");
+    let [x, y] = getPosition();
     let inset = 20;
     let insetRight = 100;
     // position is offscreen; center it
@@ -32,16 +42,13 @@ function putInView(pos) {
         || x < posPx[0] && x + viewWidth / 2 - insetRight < posPx[0]
         || y > posPx[1] && y - viewHeight / 2 + inset > posPx[1]
         || y < posPx[1] && y + viewHeight / 2 - inset < posPx[1]) {
-        map.style.setProperty("--map-offset-x", `${posPx[0]}`);
-        map.style.setProperty("--map-offset-y", `${posPx[1]}`);
+        setPositionRaw(posPx);
     }
 }
 function dragMap(delta) {
-    let x = parseFloat(map.style.getPropertyValue("--map-offset-x") || "0");
-    let y = parseFloat(map.style.getPropertyValue("--map-offset-y") || "0");
+    let [x, y] = getPosition();
     const scale = 1;
-    map.style.setProperty("--map-offset-x", `${x + delta[0] * scale}`);
-    map.style.setProperty("--map-offset-y", `${y + delta[1] * scale}`);
+    setPositionRaw([x + delta[0] * scale, y + delta[1] * scale]);
 }
 function handleMouseMove(e) {
     dragMap([-e.movementX, e.movementY]);
