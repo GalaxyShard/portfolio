@@ -52,10 +52,10 @@
     background-repeat:repeat-x;
     background-image: url(images/arrows.png);
     background-size: contain;
-    transition:.25s top;
+    transition:transform .25s;
 }
 #popup > button:hover > div {
-    top:8px;
+    transform:translateY(2px);
 }
 #popup > iframe {
     border:0;

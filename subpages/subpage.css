@@ -47,11 +47,12 @@ img.float-left, img.float-right {
     color:#006de1;
 }
 .linked-page::after {
-    position:relative;
-    left:0px;
-    content: " >";
-    transition:.25s left ease-out;
+    display:inline-block;
+    transform:translateX(0);
+
+    content: "\a0>";
+    transition:transform .25s ease-out;
 }
 .linked-page:hover::after {
-    left:5px;
+    transform:translateX(5px);
 }

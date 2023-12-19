@@ -69,8 +69,7 @@ body {
 #map > .icon > .title {
     transform:translate(calc(var(--grid-size) - 10px), -50%);
     
-    padding-left:10px;
-    z-index:-1;
+    margin-left:10px;
 
     color:white;
     
@@ -82,25 +81,24 @@ body {
     background-color: #000000c0;
 }
 #map > .icon > button {
-    transform: translate(-50%, -50%);
-    
-    background-color: white;
-    border-radius:0;
-    border:0;
+    display:block;
     width:var(--grid-size);
     height:var(--grid-size);
-    display:block;
-
+    
+    background-color: white;
+    
+    border-radius:0;
+    border:0;
     padding:0px;
     margin:0px;
 
-    box-shadow: 0px 0px 0px 5px #000000;
-
-    transition:width 0.15s, height 0.15s;
+    box-shadow: 0px 0px 5px 5px #000000;
+    
+    transform: translate(-50%, -50%);
+    transition:transform 0.15s;
 }
 #map > .icon > button:hover, #map > .icon > button:focus-visible {
-    width:calc(var(--grid-size) * 1.5);
-    height:calc(var(--grid-size) * 1.5);
+    transform: translate(-50%, -50%) scale(150%);
 }
 #map > .icon > button:active {
     background:lightgrey;
