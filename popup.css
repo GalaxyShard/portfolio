@@ -29,7 +29,6 @@
     width:100%;
     height:var(--offset-height);
 
-    display:block;
     background-color: dimgray;
     color:#ffffff;
     cursor:pointer;
@@ -41,20 +40,28 @@
     background-repeat:repeat-x;
     background-image: url(images/grey-stripes.png);
     background-size: contain;
+
+    display:flex;
+    justify-content: center;
+    overflow:hidden;
 }
-#popup > button > div {
-    left:0;
-    right:0;
+#popup > button::after {
+    content:"";
+    display:block;
+    position:absolute;
+
     margin:0 auto 0 auto;
     top:6px;
+
     width:calc(24px * 400 / 130 * 3);
     height:24px;
+
     background-repeat:repeat-x;
     background-image: url(images/arrows.png);
     background-size: contain;
     transition:transform .25s;
 }
-#popup > button:hover > div {
+#popup > button:hover::after {
     transform:translateY(2px);
 }
 #popup > iframe {
