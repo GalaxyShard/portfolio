@@ -53,29 +53,31 @@ function dragMap(delta: Vec2) {
 function handleMouseMove(e: MouseEvent) {
     dragMap([-e.movementX, e.movementY]);
 }
-let lastTouch: Vec2 = [0, 0];
-let touchId: number | null = null;
+let currentTouches: {[index: number]: Vec2 | undefined} = {};
 function handleTouchMove(e: TouchEvent) {
-    let touchPos: Vec2 = [0, 0];
-    let touchFound = false;
+
+    let offset: Vec2 = [0, 0];
     for (let touch of e.changedTouches) {
-        if (touch.identifier === touchId) {
-            touchPos = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
-            touchFound = true;
+        if (currentTouches[touch.identifier] !== undefined) {
+            let lastTouch = currentTouches[touch.identifier]!;
+            let touchPos: Vec2 = [touch.screenX, touch.screenY];
+            
+            offset[0] += -(touchPos[0] - lastTouch[0]);
+            offset[1] += touchPos[1] - lastTouch[1];
+
+            lastTouch[0] = touchPos[0];
+            lastTouch[1] = touchPos[1];
         }
     }
-    if (!touchFound) {
-        return;
-    }
-    dragMap([-(touchPos[0] - lastTouch[0]), touchPos[1] - lastTouch[1]]);
-    lastTouch = touchPos;
+    dragMap(offset);
 }
 function handleMouseUp() {
     mapContainer.removeEventListener("mousemove", handleMouseMove);
 }
-function handleTouchEnd() {
-    mapContainer.removeEventListener("touchmove", handleTouchMove);
-    touchId = null;
+function handleTouchEnd(e: TouchEvent) {
+    for (let touch of e.changedTouches) {
+        currentTouches[touch.identifier] = undefined;
+    }
 }
 mapContainer.addEventListener("mousedown", e => {
     mapContainer.addEventListener("mousemove", handleMouseMove);
@@ -87,12 +89,11 @@ mapContainer.addEventListener("wheel", e => {
     dragMap([e.deltaX, -e.deltaY]);
 });
 mapContainer.addEventListener("touchstart", e => {
-    mapContainer.addEventListener("touchmove", handleTouchMove);
-    if (touchId === null) {
-        touchId = e.changedTouches[0].identifier;
-        lastTouch = [e.changedTouches[0].clientX, e.changedTouches[0].clientY];
+    for (let touch of e.changedTouches) {
+        currentTouches[touch.identifier] = [touch.screenX, touch.screenY];
     }
 });
+mapContainer.addEventListener("touchmove", handleTouchMove);
 mapContainer.addEventListener("touchend", handleTouchEnd);
 mapContainer.addEventListener("touchcancel", handleTouchEnd);
 
@@ -171,12 +172,6 @@ async function createMap() {
     mapCreated = true;
     
     const delayTime = 250;
-    const startPos: Vec2 = [0, 0];
-    const aboutPos: Vec2 = [-5, 6];
-    const project0Pos: Vec2 = [4, 7];
-    const project1Pos: Vec2 = [7, 11];
-    const project2Pos: Vec2 = [4, 15];
-    const resumePos: Vec2 = [0, -6];
 
     const triangle: Vec2[] = [
         [-1.56, 10], [1.23, 10], // 0, 1

@@ -6,8 +6,7 @@ body {
 }
 
 * {
-    /* supposed to prevent selecting elements, iOS requires extra */
-    touch-action:none;
+    touch-action:pinch-zoom;
     -webkit-user-select: none;
     user-select: none;
 }
