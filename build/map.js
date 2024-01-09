@@ -1,3 +1,29 @@
+/**
+ *
+ * @source: https://portfolio.byteroach.com/src/map.ts
+ *
+ * @licstart  The following is the entire license notice for the
+ *  JavaScript code in this page
+ *
+ * Copyright (C) 2022-2024 Dominic Adragna
+ *
+ * The JavaScript code in this page is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @licend  The above is the entire license notice
+ * for the JavaScript code in this page
+ *
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -161,11 +187,11 @@ function createMap() {
         mapCreated = true;
         const delayTime = 250;
         const triangle = [
-            [-1.56, 10], [1.23, 10],
-            [-1.52, 5.202],
-            [-0.2, 2.24],
-            [-2.1, -2.19], [2.9, -1.595], [6.3, -2.19],
-            [-9.8, -4.595], [-3.9, -4.45], [10.66, -4.45],
+            [-1.56, 10], [1.23, 10], // 0, 1
+            [-1.52, 5.202], // 2
+            [-0.2, 2.24], // 3
+            [-2.1, -2.19], [2.9, -1.595], [6.3, -2.19], // 4, 5, 6
+            [-9.8, -4.595], [-3.9, -4.45], [10.66, -4.45], // 7, 8, 9
             [-8.33, -6.89], [9.25, -6.89], // 10, 11
         ];
         //           0---1
