@@ -1,10 +1,10 @@
 {
   "name": "portfolio",
   "scripts": {
-    "build": "npx tsc",
-    "watch": "npx tsc --watch"
+    "build": "pnpm exec tsc",
+    "watch": "pnpm exec tsc --watch"
   },
-  "devDependencies": {
-    "typescript": "^5.2.2"
+  "dependencies": {
+    "typescript": "^5.3.3"
   }
 }
