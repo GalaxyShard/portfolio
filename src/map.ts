@@ -157,9 +157,8 @@ function createIcon(name: string, offset: Vec2, popup: { subpage: string; closed
     title.textContent = name;
     title.classList.add("title");
 
-    container.appendChild(open);
-    container.appendChild(title);
-    map.appendChild(container);
+    container.append(open, title);
+    map.append(container);
     return { container: container, open: open, title: title };
 }
 function dist(a: Vec2, b: Vec2) {
@@ -178,8 +177,8 @@ function createLine(start: Vec2, end: Vec2) {
     element.style.setProperty("--angle", `${-angle}rad`);
     
     
-    container.appendChild(element);
-    map.appendChild(container);
+    container.append(element);
+    map.append(container);
     return { container: container };
 }
 let icon = createIcon("Start Here", [0, 0], {

@@ -40,6 +40,7 @@
     background-repeat:repeat-x;
     background-image: url(images/grey-stripes.png);
     background-size: contain;
+    filter:contrast(130%);
 
     display:flex;
     justify-content: center;

@@ -58,7 +58,7 @@ body {
     animation: fadeIn 1s ease forwards;
 }
 @keyframes fadeIn {
-    0% { opacity:0; }
+    0% { }
     100% { opacity:1; }
 }
 
@@ -107,10 +107,20 @@ body {
     width: calc(var(--grid-size) * var(--length));
 
     /* transform-origin and translateY is to correctly position the border to the center */
-    --border-size: 1px;
+    --border-size: 1.5px;
     transform-origin:left center;
     transform: translateY(calc(var(--border-size) / -2))
-        rotate(var(--angle));
+        rotate(var(--angle))
+        scale(0);
 
     border-top:var(--border-size) solid aquamarine;
+
+    animation: scaleIn 1s ease forwards;
+}
+@keyframes scaleIn {
+    0% { }
+    100% {
+        transform:translateY(calc(var(--border-size) / -2))
+            rotate(var(--angle));
+    }
 }

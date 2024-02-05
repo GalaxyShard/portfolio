@@ -149,9 +149,8 @@ function createIcon(name, offset, popup) {
     });
     title.textContent = name;
     title.classList.add("title");
-    container.appendChild(open);
-    container.appendChild(title);
-    map.appendChild(container);
+    container.append(open, title);
+    map.append(container);
     return { container: container, open: open, title: title };
 }
 function dist(a, b) {
@@ -166,8 +165,8 @@ function createLine(start, end) {
     let angle = Math.atan2(end[1] - start[1], end[0] - start[0]);
     // negate because css uses clockwise angles
     element.style.setProperty("--angle", `${-angle}rad`);
-    container.appendChild(element);
-    map.appendChild(container);
+    container.append(element);
+    map.append(container);
     return { container: container };
 }
 let icon = createIcon("Start Here", [0, 0], {
