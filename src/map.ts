@@ -32,12 +32,35 @@ let map = document.getElementById("map")!;
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+function easingFunction(t: number) : number {
+    return 1 - Math.pow(1 - t, 3);
+}
+
 type Vec2 = [number, number];
 function setPositionRaw(pos: Vec2) {
     let x = Math.min(Math.max(pos[0], -500), 500);
     let y = Math.min(Math.max(pos[1], -500), 500);
     map.style.setProperty("--map-offset-x", `${x}`);
     map.style.setProperty("--map-offset-y", `${y}`);
+}
+function zoomMap(scale: number) {
+    let startTime: number | null = null;
+    let startScale = parseFloat(map.style.getPropertyValue("--map-zoom") || "1");
+
+    let length = 1000 /* ms */;
+    const animationFrame = (time: number) => {
+        if (startTime === null) {
+            startTime = time;
+        }
+        let elapsed = time - startTime;
+        map.style.setProperty("--map-zoom", `${startScale + (scale - startScale) * easingFunction(elapsed / length)}`);
+
+        if (elapsed < length) {
+            requestAnimationFrame(animationFrame);
+        }
+        
+    }
+    requestAnimationFrame(animationFrame);
 }
 function getPosition(): Vec2 {
     return [
@@ -197,7 +220,7 @@ async function createMap() {
     }
     mapCreated = true;
     
-    const delayTime = 250;
+    const delayTime = 100;
 
     const triangle: Vec2[] = [
         [-1.56, 10], [1.23, 10], // 0, 1
@@ -283,7 +306,15 @@ async function createMap() {
             subpage: "subpages/retro-remaster.html",
         },
     };
-    let initializedIcons: {[index: number]: boolean} = {};
+
+    zoomMap(0.5);
+    await delay(400);
+    for (let i in mapIcons) {
+        let iconInfo = mapIcons[i];
+        let icon = createIcon(iconInfo.name, getPos(i as unknown as number), { subpage: iconInfo.subpage, closedEvent: iconInfo.closedEvent });
+        icon.open.tabIndex = getTabIndex(i as unknown as number);
+    }
+    // let initializedIcons: {[index: number]: boolean} = {};
     for (let i = 0; i < lines.length; i += 2) {
         await delay(delayTime);
         let a_index = lines[i];
@@ -292,16 +323,30 @@ async function createMap() {
         let b: Vec2 = b_index == -1 ? [0,0] : getPos(b_index);
         createLine(a, b);
 
-        function tryInitializeIcon(index: number, pos: Vec2) {
-            if (initializedIcons[index] != true && mapIcons[index]) {
-                let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
-                icon.open.tabIndex = getTabIndex(index);
-                initializedIcons[index] = true;
-            }
-        }
-        tryInitializeIcon(a_index, a);
-        tryInitializeIcon(b_index, b);
+        // function tryInitializeIcon(index: number, pos: Vec2) {
+        //     if (initializedIcons[index] != true && mapIcons[index]) {
+        //         let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
+        //         icon.open.tabIndex = getTabIndex(index);
+        //         initializedIcons[index] = true;
+        //     }
+        // }
+        // tryInitializeIcon(a_index, a);
+        // tryInitializeIcon(b_index, b);
     }
+    await delay(400);
+    zoomMap(1);
+
+    await delay(400);
+
+
+    let tooltip = createContainer("tooltip", [-3.5, -2]);    
+    let svg = document.createElement("img");
+    svg.src = "/images/cursor.svg";
+
+    let text = document.createTextNode("Click & drag");
+    tooltip.append(svg, text);
+    
+    map.append(tooltip);
 }
 
 if (localStorage?.getItem("map-tutorial")) {

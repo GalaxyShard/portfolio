@@ -1,6 +1,6 @@
 @import url("fonts/audiowide.css");
 body {
-    background: indigo;
+    background: #202020;
     height:100%;
     overflow:hidden;
 }
@@ -38,10 +38,11 @@ body {
     height:100%;
     --map-offset-x: 0;
     --map-offset-y: 0;
+    --map-zoom:1;
     transform: translate(
         calc(-1px * var(--map-offset-x)),
         calc(1px * var(--map-offset-y))
-    );
+    ) scale(var(--map-zoom), var(--map-zoom));
     --grid-size:20px;
 }
 #map * {
@@ -107,14 +108,13 @@ body {
     width: calc(var(--grid-size) * var(--length));
 
     /* transform-origin and translateY is to correctly position the border to the center */
-    --border-size: 1.5px;
+    --border-size: calc(2px / var(--map-zoom));
     transform-origin:left center;
     transform: translateY(calc(var(--border-size) / -2))
         rotate(var(--angle))
         scale(0);
 
-    border-top:var(--border-size) solid aquamarine;
-
+    border-top:var(--border-size) solid #f0b080;
     animation: scaleIn 1s ease forwards;
 }
 @keyframes scaleIn {
@@ -123,4 +123,23 @@ body {
         transform:translateY(calc(var(--border-size) / -2))
             rotate(var(--angle));
     }
+}
+
+
+#map > .tooltip {
+    width:auto;
+    height:auto;
+    color:#ffffe0;
+    font-family:"Audiowide", fantasy;
+
+    display:flex;
+    align-items: center;
+}
+#map > .tooltip > * {
+    position:relative;
+}
+#map > .tooltip > img {
+    height:50px;
+    transform:rotate(-22deg);
+    margin-right:5px;
 }

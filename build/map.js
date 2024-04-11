@@ -37,11 +37,30 @@ import { openPopup } from "./popup.js";
 let mapContainer = document.getElementById("map-container");
 let map = document.getElementById("map");
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
+function easingFunction(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
 function setPositionRaw(pos) {
     let x = Math.min(Math.max(pos[0], -500), 500);
     let y = Math.min(Math.max(pos[1], -500), 500);
     map.style.setProperty("--map-offset-x", `${x}`);
     map.style.setProperty("--map-offset-y", `${y}`);
+}
+function zoomMap(scale) {
+    let startTime = null;
+    let startScale = parseFloat(map.style.getPropertyValue("--map-zoom") || "1");
+    let length = 1000 /* ms */;
+    const animationFrame = (time) => {
+        if (startTime === null) {
+            startTime = time;
+        }
+        let elapsed = time - startTime;
+        map.style.setProperty("--map-zoom", `${startScale + (scale - startScale) * easingFunction(elapsed / length)}`);
+        if (elapsed < length) {
+            requestAnimationFrame(animationFrame);
+        }
+    };
+    requestAnimationFrame(animationFrame);
 }
 function getPosition() {
     return [
@@ -184,7 +203,7 @@ function createMap() {
             return;
         }
         mapCreated = true;
-        const delayTime = 250;
+        const delayTime = 100;
         const triangle = [
             [-1.56, 10], [1.23, 10], // 0, 1
             [-1.52, 5.202], // 2
@@ -268,7 +287,14 @@ function createMap() {
                 subpage: "subpages/retro-remaster.html",
             },
         };
-        let initializedIcons = {};
+        zoomMap(0.5);
+        yield delay(400);
+        for (let i in mapIcons) {
+            let iconInfo = mapIcons[i];
+            let icon = createIcon(iconInfo.name, getPos(i), { subpage: iconInfo.subpage, closedEvent: iconInfo.closedEvent });
+            icon.open.tabIndex = getTabIndex(i);
+        }
+        // let initializedIcons: {[index: number]: boolean} = {};
         for (let i = 0; i < lines.length; i += 2) {
             yield delay(delayTime);
             let a_index = lines[i];
@@ -276,16 +302,25 @@ function createMap() {
             let a = a_index == -1 ? [0, 0] : getPos(a_index);
             let b = b_index == -1 ? [0, 0] : getPos(b_index);
             createLine(a, b);
-            function tryInitializeIcon(index, pos) {
-                if (initializedIcons[index] != true && mapIcons[index]) {
-                    let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
-                    icon.open.tabIndex = getTabIndex(index);
-                    initializedIcons[index] = true;
-                }
-            }
-            tryInitializeIcon(a_index, a);
-            tryInitializeIcon(b_index, b);
+            // function tryInitializeIcon(index: number, pos: Vec2) {
+            //     if (initializedIcons[index] != true && mapIcons[index]) {
+            //         let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
+            //         icon.open.tabIndex = getTabIndex(index);
+            //         initializedIcons[index] = true;
+            //     }
+            // }
+            // tryInitializeIcon(a_index, a);
+            // tryInitializeIcon(b_index, b);
         }
+        yield delay(400);
+        zoomMap(1);
+        yield delay(400);
+        let tooltip = createContainer("tooltip", [-3.5, -2]);
+        let svg = document.createElement("img");
+        svg.src = "/images/cursor.svg";
+        let text = document.createTextNode("Click & drag");
+        tooltip.append(svg, text);
+        map.append(tooltip);
     });
 }
 if (localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem("map-tutorial")) {
