@@ -83,17 +83,25 @@ function putInView(pos: Vec2) {
 
     let [x, y] = getPosition();
 
-    let inset = 20;
-    let insetRight = 100;
-    // position is offscreen; center it
-    if (
-        x > posPx[0] && x-viewWidth/2+inset > posPx[0]
-        || x < posPx[0] && x+viewWidth/2-insetRight < posPx[0]
-        || y > posPx[1] && y-viewHeight/2+inset > posPx[1]
-        || y < posPx[1] && y+viewHeight/2-inset < posPx[1]
-    ) {
-        setPositionRaw(posPx);
+    let inset = 75;
+    let insetRight = 150; // larger inset on the right so that text does not get cut off
+
+    let screenLeft = x-viewWidth/2+inset;
+    let screenRight = x+viewWidth/2-insetRight;
+    let screenBottom = y-viewHeight/2+inset;
+    let screenTop = y+viewHeight/2-inset;
+    
+    if (screenLeft > posPx[0]) {
+        x -= screenLeft - posPx[0];
+    } else if (screenRight < posPx[0]) {
+        x += posPx[0] - screenRight;
     }
+    if (screenBottom > posPx[1]) {
+        y -= screenBottom - posPx[1];
+    } else if (screenTop < posPx[1]) {
+        y += posPx[1] - screenTop;
+    }
+    setPositionRaw([x, y]);
 }
 function dragMap(delta: Vec2) {
     let [x, y] = getPosition();
