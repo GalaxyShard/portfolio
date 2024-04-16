@@ -38,7 +38,7 @@ function easingFunction(t: number) : number {
 
 type Vec2 = [number, number];
 function setPositionRaw(pos: Vec2) {
-    let x = Math.min(Math.max(pos[0], -500), 500);
+    let x = Math.min(Math.max(pos[0], -750), 750);
     let y = Math.min(Math.max(pos[1], -500), 500);
     map.style.setProperty("--map-offset-x", `${x}`);
     map.style.setProperty("--map-offset-y", `${y}`);
@@ -52,7 +52,7 @@ function zoomMap(scale: number) {
         if (startTime === null) {
             startTime = time;
         }
-        let elapsed = time - startTime;
+        let elapsed = Math.min(time - startTime, length);
         map.style.setProperty("--map-zoom", `${startScale + (scale - startScale) * easingFunction(elapsed / length)}`);
 
         if (elapsed < length) {
@@ -108,8 +108,16 @@ function dragMap(delta: Vec2) {
     const scale = 1;
     setPositionRaw([x + delta[0]*scale, y + delta[1]*scale]);
 }
+let lastMousePos: Vec2 | null = null;
 function handleMouseMove(e: MouseEvent) {
-    dragMap([-e.movementX, e.movementY]);
+    // major browsers are not compliant with e.movementX and e.movementY as of 2024
+    let offset: Vec2 = [
+        -(e.screenX - lastMousePos![0]),
+        e.screenY - lastMousePos![1]
+    ];
+    lastMousePos![0] = e.screenX;
+    lastMousePos![1] = e.screenY;
+    dragMap(offset);
 }
 let currentTouches: {[index: number]: Vec2 | undefined} = {};
 function handleTouchMove(e: TouchEvent) {
@@ -130,6 +138,7 @@ function handleTouchMove(e: TouchEvent) {
     dragMap(offset);
 }
 function handleMouseUp() {
+    lastMousePos = null;
     mapContainer.removeEventListener("mousemove", handleMouseMove);
 }
 function handleTouchEnd(e: TouchEvent) {
@@ -138,6 +147,7 @@ function handleTouchEnd(e: TouchEvent) {
     }
 }
 mapContainer.addEventListener("mousedown", e => {
+    lastMousePos = [e.screenX, e.screenY];
     mapContainer.addEventListener("mousemove", handleMouseMove);
 });
 mapContainer.addEventListener("mouseup", handleMouseUp);
@@ -187,6 +197,11 @@ function createIcon(name: string, offset: Vec2, popup: { subpage: string; closed
     });
     title.textContent = name;
     title.classList.add("title");
+
+    /* NOTE: possibly remove this */
+    container.addEventListener("mousedown", e => {
+        e.stopPropagation();
+    });
 
     container.append(open, title);
     map.append(container);
@@ -322,7 +337,6 @@ async function createMap() {
         let icon = createIcon(iconInfo.name, getPos(i as unknown as number), { subpage: iconInfo.subpage, closedEvent: iconInfo.closedEvent });
         icon.open.tabIndex = getTabIndex(i as unknown as number);
     }
-    // let initializedIcons: {[index: number]: boolean} = {};
     for (let i = 0; i < lines.length; i += 2) {
         await delay(delayTime);
         let a_index = lines[i];
@@ -330,16 +344,6 @@ async function createMap() {
         let a: Vec2 = a_index == -1 ? [0,0] : getPos(a_index);
         let b: Vec2 = b_index == -1 ? [0,0] : getPos(b_index);
         createLine(a, b);
-
-        // function tryInitializeIcon(index: number, pos: Vec2) {
-        //     if (initializedIcons[index] != true && mapIcons[index]) {
-        //         let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
-        //         icon.open.tabIndex = getTabIndex(index);
-        //         initializedIcons[index] = true;
-        //     }
-        // }
-        // tryInitializeIcon(a_index, a);
-        // tryInitializeIcon(b_index, b);
     }
     await delay(400);
     zoomMap(1);
@@ -347,7 +351,8 @@ async function createMap() {
     await delay(400);
 
 
-    let tooltip = createContainer("tooltip", [-3.5, -2]);    
+    let tooltip = createContainer("tooltip", [-3.5, -2]);
+    tooltip.setAttribute("aria-hidden", "true");
     let svg = document.createElement("img");
     svg.src = "/images/cursor.svg";
 

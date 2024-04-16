@@ -41,7 +41,7 @@ function easingFunction(t) {
     return 1 - Math.pow(1 - t, 3);
 }
 function setPositionRaw(pos) {
-    let x = Math.min(Math.max(pos[0], -500), 500);
+    let x = Math.min(Math.max(pos[0], -750), 750);
     let y = Math.min(Math.max(pos[1], -500), 500);
     map.style.setProperty("--map-offset-x", `${x}`);
     map.style.setProperty("--map-offset-y", `${y}`);
@@ -54,7 +54,7 @@ function zoomMap(scale) {
         if (startTime === null) {
             startTime = time;
         }
-        let elapsed = time - startTime;
+        let elapsed = Math.min(time - startTime, length);
         map.style.setProperty("--map-zoom", `${startScale + (scale - startScale) * easingFunction(elapsed / length)}`);
         if (elapsed < length) {
             requestAnimationFrame(animationFrame);
@@ -105,8 +105,16 @@ function dragMap(delta) {
     const scale = 1;
     setPositionRaw([x + delta[0] * scale, y + delta[1] * scale]);
 }
+let lastMousePos = null;
 function handleMouseMove(e) {
-    dragMap([-e.movementX, e.movementY]);
+    // major browsers are not compliant with e.movementX and e.movementY as of 2024
+    let offset = [
+        -(e.screenX - lastMousePos[0]),
+        e.screenY - lastMousePos[1]
+    ];
+    lastMousePos[0] = e.screenX;
+    lastMousePos[1] = e.screenY;
+    dragMap(offset);
 }
 let currentTouches = {};
 function handleTouchMove(e) {
@@ -124,6 +132,7 @@ function handleTouchMove(e) {
     dragMap(offset);
 }
 function handleMouseUp() {
+    lastMousePos = null;
     mapContainer.removeEventListener("mousemove", handleMouseMove);
 }
 function handleTouchEnd(e) {
@@ -132,6 +141,7 @@ function handleTouchEnd(e) {
     }
 }
 mapContainer.addEventListener("mousedown", e => {
+    lastMousePos = [e.screenX, e.screenY];
     mapContainer.addEventListener("mousemove", handleMouseMove);
 });
 mapContainer.addEventListener("mouseup", handleMouseUp);
@@ -178,6 +188,10 @@ function createIcon(name, offset, popup) {
     });
     title.textContent = name;
     title.classList.add("title");
+    /* NOTE: possibly remove this */
+    container.addEventListener("mousedown", e => {
+        e.stopPropagation();
+    });
     container.append(open, title);
     map.append(container);
     return { container: container, open: open, title: title };
@@ -304,7 +318,6 @@ function createMap() {
             let icon = createIcon(iconInfo.name, getPos(i), { subpage: iconInfo.subpage, closedEvent: iconInfo.closedEvent });
             icon.open.tabIndex = getTabIndex(i);
         }
-        // let initializedIcons: {[index: number]: boolean} = {};
         for (let i = 0; i < lines.length; i += 2) {
             yield delay(delayTime);
             let a_index = lines[i];
@@ -312,20 +325,12 @@ function createMap() {
             let a = a_index == -1 ? [0, 0] : getPos(a_index);
             let b = b_index == -1 ? [0, 0] : getPos(b_index);
             createLine(a, b);
-            // function tryInitializeIcon(index: number, pos: Vec2) {
-            //     if (initializedIcons[index] != true && mapIcons[index]) {
-            //         let icon = createIcon(mapIcons[index].name, pos, { subpage: mapIcons[index].subpage, closedEvent: mapIcons[index].closedEvent });
-            //         icon.open.tabIndex = getTabIndex(index);
-            //         initializedIcons[index] = true;
-            //     }
-            // }
-            // tryInitializeIcon(a_index, a);
-            // tryInitializeIcon(b_index, b);
         }
         yield delay(400);
         zoomMap(1);
         yield delay(400);
         let tooltip = createContainer("tooltip", [-3.5, -2]);
+        tooltip.setAttribute("aria-hidden", "true");
         let svg = document.createElement("img");
         svg.src = "/images/cursor.svg";
         let text = document.createTextNode("Click & drag");

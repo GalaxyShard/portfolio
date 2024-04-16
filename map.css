@@ -137,6 +137,7 @@ body {
 }
 #map > .tooltip > * {
     position:relative;
+    pointer-events:none;
 }
 #map > .tooltip > img {
     height:50px;
