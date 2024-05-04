@@ -29,7 +29,7 @@
     width:100%;
     height:var(--offset-height);
 
-    background-color: dimgray;
+    background-color: #222222;
     color:#ffffff;
     cursor:pointer;
 
@@ -38,7 +38,7 @@
     border-bottom:2px solid black;
 
     background-repeat:repeat-x;
-    background-image: url(images/grey-stripes.png);
+    background-image: url(images/grey-stripes.svg);
     background-size: contain;
     filter:contrast(130%);
 
@@ -54,12 +54,13 @@
     margin:0 auto 0 auto;
     top:6px;
 
-    width:calc(24px * 400 / 130 * 3);
+    width:calc(24px * 3 * 3); /* 3 arrows, width = height*3 */
     height:24px;
 
     background-repeat:repeat-x;
-    background-image: url(images/arrows.png);
+    background-image: url(images/arrows.svg);
     background-size: contain;
+
     transition:transform .25s;
 }
 #popup > button:hover::after {
