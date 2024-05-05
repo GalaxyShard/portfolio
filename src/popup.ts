@@ -36,17 +36,17 @@ popup.setAttribute("aria-hidden", "true");
 const closeButton = document.createElement("button");
 closeButton.setAttribute("aria-label", "Close");
 
-popup.appendChild(closeButton);
-document.body.appendChild(popup);
+popup.append(closeButton);
+document.body.append(popup);
 
 let popupFrame: HTMLIFrameElement | null = null;
 
 let closedEvent: (() => void) | undefined = undefined;
 closeButton.addEventListener("click", _ => {
     popup.classList.remove("opened");
+    popup.setAttribute("aria-hidden","true");
     setTimeout(() => {
         popup.classList.add("closed");
-        popup.setAttribute("aria-hidden","true");
         popupFrame?.remove();
         popupFrame = null;
     }, 500);
@@ -62,7 +62,7 @@ export function openPopup(subpage: string, onClose?: (() => void)): boolean {
     popupFrame = document.createElement("iframe");
     popupFrame.src = subpage;
 
-    popup.appendChild(popupFrame);
+    popup.append(popupFrame);
     closedEvent = onClose;
 
     popup.classList.remove("closed");

@@ -32,15 +32,15 @@ popup.setAttribute("aria-modal", "true");
 popup.setAttribute("aria-hidden", "true");
 const closeButton = document.createElement("button");
 closeButton.setAttribute("aria-label", "Close");
-popup.appendChild(closeButton);
-document.body.appendChild(popup);
+popup.append(closeButton);
+document.body.append(popup);
 let popupFrame = null;
 let closedEvent = undefined;
 closeButton.addEventListener("click", _ => {
     popup.classList.remove("opened");
+    popup.setAttribute("aria-hidden", "true");
     setTimeout(() => {
         popup.classList.add("closed");
-        popup.setAttribute("aria-hidden", "true");
         popupFrame === null || popupFrame === void 0 ? void 0 : popupFrame.remove();
         popupFrame = null;
     }, 500);
@@ -53,7 +53,7 @@ export function openPopup(subpage, onClose) {
     }
     popupFrame = document.createElement("iframe");
     popupFrame.src = subpage;
-    popup.appendChild(popupFrame);
+    popup.append(popupFrame);
     closedEvent = onClose;
     popup.classList.remove("closed");
     popup.classList.add("opened");
