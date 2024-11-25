@@ -1,3 +1,5 @@
+Moved to Codeberg: https://codeberg.org/galaxyshard/portfolio)
+
 ## Locally preview the website
 
 ```sh
