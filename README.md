@@ -1,4 +1,4 @@
-Moved to Codeberg: https://codeberg.org/galaxyshard/portfolio)
+Moved to Codeberg: https://codeberg.org/galaxyshard/portfolio
 
 ## Locally preview the website
 
